@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Tagmap edit</title>
+	<link rel="stylesheet" href="libs/leaflet.css" />
+	<!--[if lte IE 8]><link rel="stylesheet" href="libs/leaflet.ie.css" /><![endif]-->
+	<link rel="stylesheet" href="leaflet.draw.css" />
+	<!--[if lte IE 8]><link rel="stylesheet" href="leaflet.draw.ie.css" /><![endif]-->
+
+	<script src="libs/leaflet-src.js"></script>
+	<script src="libs/leaflet.draw.js"></script>
+    <script src="libs/jquery.js"></script>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>
+	             <div id="map" style="width: 500px; height: 500px; border: 1px solid #ccc"></div>
+            </td>
+            <td>
+                tags:<input id="tagsQuery" type="text"></input>
+                <button id="edit">edit</button>
+                <table>
+             <form name="mark" action="#">
+             <tr><td>id:</td><td><input type="text" id="id"></td></tr>
+             <tr><td>navn:</td><td><input type="text" id="name"></td></tr>
+             <tr><td>tags:</td><td><input type="text" id="tags"> </td></tr>
+             <tr><td>content:</td><td> <textarea id="content" style="width: 400px; height: 200px; border: 1px solid #ccc"> </textarea></td></tr>
+             <tr><td>&nbsp;</td><td><button id="saveButton">Gem</button></td></tr>
+             </form>
+            </td>
+        </tr>
+    </table>
+    <script src="TagMap.js"></script>
+    <script type="text/javascript">
+        var tagmap = new TagMap('map');
+        $('#edit').on('click', function () {
+                tagmap.edit($('#tagsQuery').val());
+                });
+    </script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>TagMap show</title>
+
+	<link rel="stylesheet" href="libs/leaflet.css" />
+	<!--[if lte IE 8]><link rel="stylesheet" href="libs/leaflet.ie.css" /><![endif]-->
+	<link rel="stylesheet" href="leaflet.draw.css" />
+	<!--[if lte IE 8]><link rel="stylesheet" href="leaflet.draw.ie.css" /><![endif]-->
+
+	<script src="libs/leaflet-src.js"></script>
+    <script src="libs/jquery.js"></script>
+</head>
+<body>
+    <table> <tr>
+            <td>
+                <div id="map" style="width: 500px; height: 500px; border: 1px solid #ccc"></div>
+            </td>
+            <td>
+                tags:<input id="tags" type="text" value="test101">
+                <button id="display">show</button>
+                <div id="info" style="width: 500px; height: 500px; border: 1px solid #ccc">
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <script src="TagMap.js"></script>
+    <script type="text/javascript">
+        var tagmap= new TagMap('map', 'info');
+//        tagmap.show('test101');
+        $('#display').on('click', function () {
+                tagmap.show( $('#tags').val() );
+                });
+        $('#clear').on('click', function () {
+                tagmap.clear();
+                });
+    </script>
+</body>
+</html>
