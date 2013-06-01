@@ -1,6 +1,6 @@
-//2013 TagMap. ksa.kk.dk <jacob.andresen@gmail.com>
 function TagMap (options) {
     var conf = options ||{
+        key: 'abracdabra',
         api: "api.php",
         content: "content_da",
         mapDiv: 'map',
@@ -135,6 +135,10 @@ function TagMap (options) {
            $('#name').val("");
            $('#content_da').val("");
 
+
+           console.log("create:%o", layer);
+
+
            if ($('#tags').val() == "")  {
                alert('missing value for tag');
                drawnItems.removeLayer(layer);
@@ -154,20 +158,23 @@ function TagMap (options) {
          function updateInfo (layer) {
              if ($('#tags').val() == "") {
                  alert('missing tags');
+                 return;
              }
-
-             $.get( conf.api, {
+            $.get( conf.api, {
                 id : $("#id").val(),
                 type: "createmapdata",
                 name: $('#name').val(),
                 content_da: $('#content_da').val(),
                 content_en: $('#content_en').val(),
                 geometry: JSON.stringify(layer.toGeoJSON()),
-                tags: $('#tags').val()
+                tags: $('#tags').val(),
+                key: conf.key
             }).done(function (data) {
-                console.log("update success:%o", data);
+                data = $.parseJSON(data);
+                //console.log("update success:%o", data[0]);
+                layer.layerData = data[0];
             });
-        }
+       }
 
         function updateLayer( layer) {
             layer = layer;
@@ -176,7 +183,19 @@ function TagMap (options) {
         }
 
         if (!map.editStarted) {
-            var drawControl = new L.Control.Draw({ edit: { featureGroup: drawnItems } });
+            var drawControl = new L.Control.Draw({
+                //position: 'topright',
+                draw: {
+                    polygon : {
+                        allowIntersection: false
+                    },
+                    circle: false
+                },
+                edit: {
+                    featureGroup: drawnItems,
+                    remove: true
+               }
+            });
             map.addControl(drawControl);
             map.editStarted = true;
         }
@@ -218,14 +237,41 @@ function TagMap (options) {
 
             map.on('draw:edited' , function (e) {
                 e.layers.eachLayer( function (layer) {
-                   updateLayer(layer);
+                $.get( conf.api, {
+                    id : layer.layerData.id,
+                    type: "createmapdata",
+                    name: layer.layerData.name,
+                    content_da: layer.layerData.content_da,
+                    content_en: layer.layerData.content_en,
+                    geometry: JSON.stringify(layer.toGeoJSON()),
+                    tags: layer.layerData.tags,
+                    key: conf.key
+                }).done(function (data) {
+                   // console.log("update success:%o", data);
+                });
                 });
             });
 
-         //   map.on('draw:deleted', function (e) { });
+            map.on('draw:deleted', function (e) {
+                e.layers.eachLayer( function (layer) {
+                    console.log("delete:%o", layer.layerData);
+                    $.get( conf.api, {
+                       id : layer.layerData.id,
+                       type: "deletemapdata",
+                       name: layer.layerData.name,
+                       content_da: layer.layerData.content_da,
+                       content_en: layer.layerData.content_en,
+                       geometry: JSON.stringify(layer.toGeoJSON()),
+                       tags: layer.layerData.tags,
+                       key: conf.key
+                    }).done(function (data) {
+                       console.log("delete :%o", data);
+                       drawnItems.removeLayer(layer);
+                   });
+                });
+            });
          });
          $('#saveButton').on('click', function () {
-             console.log("savebutton click:%o", layer);
              updateInfo(layer);
          });
     };
@@ -238,11 +284,13 @@ function TagMap (options) {
             content_da: $('#content_da').val(),
             content_en: $('#content_en').val(),
             geometry: JSON.stringify(layer.toGeoJSON()),
-            tags: $('#tags').val()
+            tags: $('#tags').val(),
+            key: conf.key
         }).done(function (data) {
            console.log("delete success:%o", data);
            drawnItems.removeLayer(layer);
         });
     };
+
     return exports;
 }

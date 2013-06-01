@@ -12,28 +12,63 @@
     <script src="libs/jquery.js"></script>
 </head>
 <body>
+
+        <script>
+            //Receiving data
+            $.ajax({
+              url: 'http://www.politietsregisterblade.dk/api/1/?type=mapdata',
+              dataType: "jsonp",
+              success: function(data){createTagSelector(data);}}
+            );
+            //Getting the unique tags and ids
+            function createTagSelector(data){
+                //Removing the last line, which is the number of results
+                data.splice(data.length-1,1);
+                referenceTags = new Array();
+                $.each(data, function(index, value){
+                    //Splitting the tags by ";", which is used with multiple tags
+                    tags = value.tags.split(';');
+                    //Iterating through the tags for the data element
+                    $.each(tags, function(counter, item){
+                        //If tag is not recorded, add it to the reference arr
+                        if($.inArray(item, referenceTags) == -1){
+                            referenceTags.push(item);
+                        }
+                    });
+                });
+                createSelectList(referenceTags);
+            }
+            //Creates the select list using the created list of tags
+            function createSelectList(referenceTags){
+                var s = $("<select id=\"tagsQuery\" name=\"selectName\" />");
+                $.each(referenceTags, function(index, value){
+                    $("<option />", {value: value, text: value}).appendTo(s);
+                });
+                $("#divs").append(s);
+            }
+        </script>
     <table>
         <tr>
             <td>
 	             <div id="map" style="width: 500px; height: 500px; border: 1px solid #ccc"></div>
             </td>
             <td>
-                filter:<input id="tagsQuery" type="text"></input>
-                <button id="edit">filtrer</button>
-                <button id="remove">slet</button>
-
                 <table>
-             <form name="mark" action="#">
+                    <form name="mark" action="#">
+                        <tr><td>   filter:</td><td> <div id="divs">
+                                    <button id="edit">s&oslash;g</button> </div>
+                        </td></tr>
              <tr><td>id:</td><td><input type="text" id="id"></td></tr>
              <tr><td>navn:</td><td><input type="text" id="name"></td></tr>
              <tr><td>tags:</td><td><input type="text" id="tags"> </td></tr>
              <tr><td>content (da):</td><td> <textarea id="content_da" style="width: 400px; height: 100px; border: 1px solid #ccc"> </textarea></td></tr>
              <tr><td>content (en):</td><td> <textarea id="content_en" style="width: 400px; height: 100px; border: 1px solid #ccc"> </textarea></td></tr>
-             <tr><td>&nbsp;</td><td><button id="saveButton">Gem</button></td></tr>
+             <tr><td>&nbsp;</td><td><button id="saveButton">Gem</button> <button id="remove">slet</button> </td></tr>
              </form>
             </td>
         </tr>
     </table>
+
     <script src="TagMap.js"></script>
     <script type="text/javascript">
     var tagmap = new TagMap({
@@ -75,6 +110,8 @@
        zoom: 14
     });
 
+     $('#tags').val("default");
+     tagmap.edit("default");
      $('#edit').on('click', function () {
         $('#id').val("");
         $('#content_da').val("");
@@ -85,5 +122,7 @@
     });
     $('#remove').on('click', function () { tagmap.remove(); });
     </script>
+
+
 </body>
 </html>

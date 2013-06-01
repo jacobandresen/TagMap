@@ -12,13 +12,14 @@
     <script src="libs/jquery.js"></script>
 </head>
 <body>
+
     <table> <tr>
             <td>
                 <div id="map" style="width: 500px; height: 500px; border: 1px solid #ccc"></div>
             </td>
             <td>
-                tags:<input id="tags" type="text" value="test101">
-                <button id="display">show</button>
+        filter: <input type="text" id="tags"> </input>
+                <button id="display">s&oslash;g</button>
                 <div id="info" style="width: 500px; height: 500px; border: 1px solid #ccc">
                 </div>
             </td>
@@ -39,7 +40,7 @@
         },
         tagConfig : [
         {
-            name: "test101",
+            name: "mwp",
             style: {
                 radius: 8,
                 fillColor: "#ffcc47",
@@ -47,20 +48,26 @@
                 weight: 5,
                 opacity: 1,
                 fillOpacity: 0.8
-            }
+                }
         },
         {
-            name: "test102",
+            name: "mwp1",
             style: {
                 radius: 8,
-                fillColor: "#cccc47",
-                color: "#ffff00",
+                fillColor: "#aacc47",
+                color: "#aaaa00",
                 weight: 5,
-                opacity: 0.5,
-                fillOpacity: 0.3
-            }
-         }
-       ],
+                opacity: 1,
+                fillOpacity: 0.8
+                }
+        },
+
+
+
+
+
+  
+      ],
        lat: 55.63405,
        lng: 12.59938,
        zoom: 14
