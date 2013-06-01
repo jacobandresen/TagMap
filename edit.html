@@ -18,14 +18,17 @@
 	             <div id="map" style="width: 500px; height: 500px; border: 1px solid #ccc"></div>
             </td>
             <td>
-                tags:<input id="tagsQuery" type="text"></input>
-                <button id="edit">edit</button>
+                filter:<input id="tagsQuery" type="text"></input>
+                <button id="edit">filtrer</button>
+                <button id="remove">slet</button>
+
                 <table>
              <form name="mark" action="#">
              <tr><td>id:</td><td><input type="text" id="id"></td></tr>
              <tr><td>navn:</td><td><input type="text" id="name"></td></tr>
              <tr><td>tags:</td><td><input type="text" id="tags"> </td></tr>
-             <tr><td>content:</td><td> <textarea id="content" style="width: 400px; height: 200px; border: 1px solid #ccc"> </textarea></td></tr>
+             <tr><td>content (da):</td><td> <textarea id="content_da" style="width: 400px; height: 100px; border: 1px solid #ccc"> </textarea></td></tr>
+             <tr><td>content (en):</td><td> <textarea id="content_en" style="width: 400px; height: 100px; border: 1px solid #ccc"> </textarea></td></tr>
              <tr><td>&nbsp;</td><td><button id="saveButton">Gem</button></td></tr>
              </form>
             </td>
@@ -33,10 +36,54 @@
     </table>
     <script src="TagMap.js"></script>
     <script type="text/javascript">
-        var tagmap = new TagMap('map');
-        $('#edit').on('click', function () {
-                tagmap.edit($('#tagsQuery').val());
-                });
+    var tagmap = new TagMap({
+        api: "api.php", //PolleAPI
+        content: "content_da",
+        mapDiv: 'map',
+        infoDiv: 'info',
+        baseMaps: {
+            "Historisk atlas": new L.TileLayer('http://tile.historiskatlas.dk/54/{z}/{x}/{y}.jpg'),
+            "OSM": new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
+            "cloudmade": new L.TileLayer('http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/997/256/{z}/{x}/{y}.png')
+        },
+        tagConfig : [
+        {
+            name: "test101",
+            style: {
+                radius: 8,
+                fillColor: "#ffcc47",
+                color: "#ff0000",
+                weight: 5,
+                opacity: 1,
+                fillOpacity: 0.8
+            }
+        },
+        {
+            name: "test102",
+            style: {
+                radius: 8,
+                fillColor: "#cccc47",
+                color: "#ffff00",
+                weight: 5,
+                opacity: 0.5,
+                fillOpacity: 0.3
+            }
+         }
+       ],
+       lat: 55.63405,
+       lng: 12.59938,
+       zoom: 14
+    });
+
+     $('#edit').on('click', function () {
+        $('#id').val("");
+        $('#content_da').val("");
+        $('#content_en').val("");
+        $('#name').val("");
+        $('#tags').val($('#tagsQuery').val());
+        tagmap.edit($('#tagsQuery').val());
+    });
+    $('#remove').on('click', function () { tagmap.remove(); });
     </script>
 </body>
 </html>
