@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Tagmap edit</title>
+    <title>Tagmap edit</title>
+    <meta charset="UTF-8">
 	<link rel="stylesheet" href="libs/leaflet.css" />
 	<!--[if lte IE 8]><link rel="stylesheet" href="libs/leaflet.ie.css" /><![endif]-->
 	<link rel="stylesheet" href="leaflet.draw.css" />
@@ -52,17 +53,18 @@
             <td>
 	             <div id="map" style="width: 500px; height: 500px; border: 1px solid #ccc"></div>
             </td>
-            <td>
+            <td valign="top">
                 <table>
                     <form name="mark" action="#">
                         <tr><td>   filter:</td><td> <div id="divs">
                                     <button id="edit">s&oslash;g</button> </div>
+                                <button id="clear">Rens kort</button>
                         </td></tr>
              <tr><td>id:</td><td><input type="text" id="id"></td></tr>
              <tr><td>navn:</td><td><input type="text" id="name"></td></tr>
-             <tr><td>tags:</td><td><input type="text" id="tags"> </td></tr>
-             <tr><td>content (da):</td><td> <textarea id="content_da" style="width: 400px; height: 100px; border: 1px solid #ccc"> </textarea></td></tr>
-             <tr><td>content (en):</td><td> <textarea id="content_en" style="width: 400px; height: 100px; border: 1px solid #ccc"> </textarea></td></tr>
+             <tr><td>tags:</td><td><input type="text" id="tags"> (krævet) </td></tr>
+             <tr><td>indhold (da):</td><td> <textarea id="content_da" style="width: 400px; height: 100px; border: 1px solid #ccc"> </textarea></td></tr>
+             <tr><td>indhold (en):</td><td> <textarea id="content_en" style="width: 400px; height: 100px; border: 1px solid #ccc"> </textarea></td></tr>
              <tr><td>&nbsp;</td><td><button id="saveButton">Gem</button> <button id="remove">slet</button> </td></tr>
              </form>
             </td>
@@ -83,7 +85,7 @@
         },
         tagConfig : [
         {
-            name: "test101",
+            name: "mwp",
             style: {
                 radius: 8,
                 fillColor: "#ffcc47",
@@ -121,6 +123,7 @@
         tagmap.edit($('#tagsQuery').val());
     });
     $('#remove').on('click', function () { tagmap.remove(); });
+    $('#clear').on('click', function () { tagmap.clear(); });
     </script>
 
 

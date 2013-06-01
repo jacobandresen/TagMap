@@ -12,7 +12,7 @@ function TagMap (options) {
         },
         tagConfig : [
         {
-            name: "test101",
+            name: "default",
             style: {
                 radius: 8,
                 fillColor: "#ffcc47",
@@ -134,13 +134,9 @@ function TagMap (options) {
            $('#id').val("");
            $('#name').val("");
            $('#content_da').val("");
-
-
            console.log("create:%o", layer);
-
-
            if ($('#tags').val() == "")  {
-               alert('missing value for tag');
+               alert('mangler værdi for tag');
                drawnItems.removeLayer(layer);
            }else {
                $.get( conf.api, {
@@ -157,7 +153,7 @@ function TagMap (options) {
 
          function updateInfo (layer) {
              if ($('#tags').val() == "") {
-                 alert('missing tags');
+                 alert('mangler værdi for tag');
                  return;
              }
             $.get( conf.api, {
@@ -170,6 +166,7 @@ function TagMap (options) {
                 tags: $('#tags').val(),
                 key: conf.key
             }).done(function (data) {
+                console.log("updateInfo:%o", data);
                 data = $.parseJSON(data);
                 //console.log("update success:%o", data[0]);
                 layer.layerData = data[0];
@@ -184,17 +181,16 @@ function TagMap (options) {
 
         if (!map.editStarted) {
             var drawControl = new L.Control.Draw({
-                //position: 'topright',
                 draw: {
-                    polygon : {
-                        allowIntersection: false
-                    },
+                    //polygon: false,
+                    //rectangle: false//,
                     circle: false
                 },
-                edit: {
-                    featureGroup: drawnItems,
-                    remove: true
-               }
+                edit: false
+             //   edit: {
+             //       featureGroup: drawnItems,
+             //       remove: true
+             //  }
             });
             map.addControl(drawControl);
             map.editStarted = true;
@@ -220,7 +216,6 @@ function TagMap (options) {
                     console.log("rendering failed:%o", e);
                 }
             }
-            map.addLayer(drawnItems);
 
             map.on('draw:created', function (e) {
                 var type = e.layerType, drawnLayer = e.layer;
@@ -247,7 +242,7 @@ function TagMap (options) {
                     tags: layer.layerData.tags,
                     key: conf.key
                 }).done(function (data) {
-                   // console.log("update success:%o", data);
+                    console.log("update success:%o", data);
                 });
                 });
             });
@@ -274,6 +269,7 @@ function TagMap (options) {
          $('#saveButton').on('click', function () {
              updateInfo(layer);
          });
+         map.addLayer(drawnItems);
     };
 
     exports.remove = function () {
