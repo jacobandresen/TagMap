@@ -1,6 +1,5 @@
 function TagMap (options) {
     var conf = options ||{
-        key: 'abracdabra',
         api: "api.php",
         content: "content_da",
         mapDiv: 'map',
@@ -134,7 +133,7 @@ function TagMap (options) {
            $('#id').val("");
            $('#name').val("");
            $('#content_da').val("");
-           console.log("create:%o", layer);
+           //console.log("create:%o", layer);
            if ($('#tags').val() == "")  {
                alert('mangler værdi for tag');
                drawnItems.removeLayer(layer);
@@ -163,10 +162,9 @@ function TagMap (options) {
                 content_da: $('#content_da').val(),
                 content_en: $('#content_en').val(),
                 geometry: JSON.stringify(layer.toGeoJSON()),
-                tags: $('#tags').val(),
-                key: conf.key
+                tags: $('#tags').val()
             }).done(function (data) {
-                console.log("updateInfo:%o", data);
+                //console.log("updateInfo:%o", data);
                 data = $.parseJSON(data);
                 //console.log("update success:%o", data[0]);
                 layer.layerData = data[0];
@@ -239,17 +237,16 @@ function TagMap (options) {
                     content_da: layer.layerData.content_da,
                     content_en: layer.layerData.content_en,
                     geometry: JSON.stringify(layer.toGeoJSON()),
-                    tags: layer.layerData.tags,
-                    key: conf.key
+                    tags: layer.layerData.tags
                 }).done(function (data) {
-                    console.log("update success:%o", data);
+                   // console.log("update success:%o", data);
                 });
                 });
             });
 
             map.on('draw:deleted', function (e) {
                 e.layers.eachLayer( function (layer) {
-                    console.log("delete:%o", layer.layerData);
+                    //console.log("delete:%o", layer.layerData);
                     $.get( conf.api, {
                        id : layer.layerData.id,
                        type: "deletemapdata",
@@ -257,10 +254,9 @@ function TagMap (options) {
                        content_da: layer.layerData.content_da,
                        content_en: layer.layerData.content_en,
                        geometry: JSON.stringify(layer.toGeoJSON()),
-                       tags: layer.layerData.tags,
-                       key: conf.key
+                       tags: layer.layerData.tags
                     }).done(function (data) {
-                       console.log("delete :%o", data);
+                       //console.log("delete :%o", data);
                        drawnItems.removeLayer(layer);
                    });
                 });
@@ -280,10 +276,9 @@ function TagMap (options) {
             content_da: $('#content_da').val(),
             content_en: $('#content_en').val(),
             geometry: JSON.stringify(layer.toGeoJSON()),
-            tags: $('#tags').val(),
-            key: conf.key
+            tags: $('#tags').val()
         }).done(function (data) {
-           console.log("delete success:%o", data);
+           //console.log("delete success:%o", data);
            drawnItems.removeLayer(layer);
         });
     };
