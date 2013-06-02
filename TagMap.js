@@ -65,9 +65,9 @@ function TagMap (options) {
     var layer;
 
     function load (tags, cb) {
-        $.get( conf.api, {
+        $.getJSON( conf.api, {
             type: "mapdata", tags: tags }).done( function (data) {
-            cb($.parseJSON(data));
+            cb((data));
         });
     }
 
