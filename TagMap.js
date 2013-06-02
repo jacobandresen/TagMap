@@ -115,6 +115,10 @@ function TagMap (options) {
                 map.removeLayer(layer);
             }
         });
+        $("#id").val("");
+        $("#name").val("");
+        $("#content_da").val("");
+        $("#content_en").val("");
     };
 
     exports.edit = function (tags) {
