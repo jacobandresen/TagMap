@@ -41,13 +41,12 @@ function TagMap (options) {
     var layers = [];
     $.each( conf.baseMaps, function (a, b) { layers.push(b); });
 
-    var drawnItems;
     function getTagStyle ( tagsIn ) {
           for( var t in conf.tagConfig) {
               if (tagsIn == conf.tagConfig[t].name) {
                   return conf.tagConfig[t].style ;
               }
-          };
+          }
     }
 
     function createMap () {
@@ -86,6 +85,7 @@ function TagMap (options) {
                     var geoJsonLayer;
                     if (geo.type == "Point") {
                         geoJsonLayer = L.geoJson(geo, {
+                            style:   getTagStyle(layerData[i].tags),
                             pointToLayer: function (feature, latlng) {
                                return L.circleMarker(latlng,
                                    getTagStyle(layerData[i].tags));
@@ -122,8 +122,6 @@ function TagMap (options) {
     };
 
     exports.edit = function (tags) {
-        drawnItems = new L.FeatureGroup();
-
         function editData (layerData) {
             $('#id').val( layerData.id );
             $('#name').val( layerData.name );
@@ -137,10 +135,9 @@ function TagMap (options) {
            $('#id').val("");
            $('#name').val("");
            $('#content_da').val("");
-           //console.log("create:%o", layer);
            if ($('#tags').val() == "")  {
                alert('mangler værdi for tag');
-               drawnItems.removeLayer(layer);
+               map.removeLayer(layer);
            }else {
                $.get( conf.api, {
                    type: "createmapdata",
@@ -184,15 +181,9 @@ function TagMap (options) {
         if (!map.editStarted) {
             var drawControl = new L.Control.Draw({
                 draw: {
-                    //polygon: false,
-                    //rectangle: false//,
                     circle: false
                 },
                 edit: false
-             //   edit: {
-             //       featureGroup: drawnItems,
-             //       remove: true
-             //  }
             });
             map.addControl(drawControl);
             map.editStarted = true;
@@ -212,7 +203,7 @@ function TagMap (options) {
                             layer = geoJsonLayer;
                             editData(this.layerData);
                         });
-                        drawnItems.addLayer(geoJsonLayer);
+                        map.addLayer(geoJsonLayer);
                     }
                 }catch (e){
                     console.log("rendering failed:%o", e);
@@ -221,12 +212,13 @@ function TagMap (options) {
 
             map.on('draw:created', function (e) {
                 var type = e.layerType, drawnLayer = e.layer;
-                drawnItems.addLayer(drawnLayer);
+                map.addLayer(drawnLayer);
                 create(drawnLayer,  function cb(data) {
                      drawnLayer.layerData = $.parseJSON(data)[0];
                      layer = drawnLayer;
                      editData(drawnLayer.layerData);
                      drawnLayer.on("click", function (e) {
+                         layer = drawnLayer;
                          editData(drawnLayer.layerData);
                      });
                 });
@@ -261,7 +253,7 @@ function TagMap (options) {
                        tags: layer.layerData.tags
                     }).done(function (data) {
                        //console.log("delete :%o", data);
-                       drawnItems.removeLayer(layer);
+                       map.removeLayer(layer);
                    });
                 });
             });
@@ -269,7 +261,6 @@ function TagMap (options) {
          $('#saveButton').on('click', function () {
              updateInfo(layer);
          });
-         map.addLayer(drawnItems);
     };
 
     exports.remove = function () {
@@ -283,7 +274,7 @@ function TagMap (options) {
             tags: $('#tags').val()
         }).done(function (data) {
            //console.log("delete success:%o", data);
-           drawnItems.removeLayer(layer);
+           map.removeLayer(layer);
         });
     };
 
