@@ -53,7 +53,7 @@ function TagMap (options) {
         var map = new L.Map(conf.mapDiv, {
             center: new L.LatLng(conf.lat, conf.lng),
             zoom: conf.zoom, //15,
-            layers: layers,
+            layers: layers
         });
         L.control.layers(conf.baseMaps).addTo(map);
         return map;
