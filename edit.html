@@ -51,7 +51,7 @@ function createTagSelector(data){
 	//Iterating through the tags for the data element
 	$.each(tags, function(counter, item){
 	    //If tag is not recorded, add it to the reference arr
-	    if($.inArray(item, referenceTags) == -1){
+	    if($.inArray(item, referenceTags) === -1){
 		referenceTags.push(item);
 	    }
 	});
