@@ -129,6 +129,29 @@ function TagMap(options) {
         $("#content_en").val("");
     };
 
+    function updateInfo(layer) {
+        if ($('#tags').val() === "") {
+            alert('mangler værdi for tag');
+   	    return;
+        }
+        $.getJSON(conf.api, {
+            id: $("#id").val(),
+	    type: "createmapdata",
+	    name: $('#name').val(),
+	    content_da: $('#content_da').val(),
+	    content_en: $('#content_en').val(),
+	    geometry: JSON.stringify(layer.toGeoJSON()),
+	    tags: $('#tags').val()
+        }).done(function(data) {
+	    //console.log("updateInfo:%o", data);
+	    layer.layerData = data[0];
+            alert('gemte data');
+        }).fail(function (data){
+            alert('gemning fejlede!');
+        });
+    }
+
+
     exports.edit = function(tags) {
         function editData(layerData) {
             $('#id').val(layerData.id);
@@ -158,26 +181,6 @@ function TagMap(options) {
                 });
             }
         }
-
-        function updateInfo(layer) {
-            if ($('#tags').val() === "") {
-                alert('mangler værdi for tag');
-                return;
-            }
-            $.getJSON(conf.api, {
-                id: $("#id").val(),
-                type: "createmapdata",
-                name: $('#name').val(),
-                content_da: $('#content_da').val(),
-                content_en: $('#content_en').val(),
-                geometry: JSON.stringify(layer.toGeoJSON()),
-                tags: $('#tags').val()
-            }).done(function(data) {
-                //console.log("updateInfo:%o", data);
-                layer.layerData = data[0];
-            });
-        }
-
         function updateLayer(layer) {
             layer = layer;
             layerData = layer.layerData;
@@ -264,11 +267,11 @@ function TagMap(options) {
                 });
             });
         });
-        $('#saveButton').on('click', function() {
-            updateInfo(layer);
-        });
-    };
-
+   };
+   $('#saveButton').on('click', function() {
+       updateInfo(layer);
+   });
+ 
     exports.remove = function() {
         console.log("remove");
         $.getJSON(conf.api, {
