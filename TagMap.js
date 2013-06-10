@@ -167,6 +167,10 @@ function TagMap(options) {
             $('#content_en').val(layerData.content_en);
             $('#geometry').val(layerData.geometry);
             $('#tags').val(layerData.tags);
+            $('#id').removeAttr("disabled");
+            $('#name').removeAttr("disabled");
+            $('#content_da').removeAttr("disabled");
+            $('#content_en').removeAttr("disabled");
             $('#saveButton').removeAttr("disabled"); 
             $('#remove').removeAttr("disabled");
         }
@@ -288,6 +292,10 @@ function TagMap(options) {
                 });
             });
 
+            $('#id').attr("disabled", true);
+            $('#name').attr("disabled", true);
+            $('#content_da').attr("disabled", true);
+            $('#content_en').attr("disabled", true);
             $('#remove').attr("disabled", true);
             $('#saveButton').attr("disabled", true);
         });

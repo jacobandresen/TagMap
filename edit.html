@@ -126,6 +126,11 @@ $(document).ready( function() {
 		$('#tags').val($('#tagsQuery').val());
 		tagmap.edit($('#tagsQuery').val());
 	    });
+
+            $('#id').attr("disabled", true);
+            $('#name').attr("disabled", true);
+            $('#content_da').attr("disabled", true);
+            $('#content_en').attr("disabled", true);
             $('#remove').attr("disabled", true);
             $('#save').attr("disabled", true); 
 	    $('#remove').on('click', function () { tagmap.remove(); });
