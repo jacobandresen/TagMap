@@ -67,9 +67,14 @@ function TagMap(options) {
     var layer;
 
     function load(tags, cb) {
-        $.getJSON(conf.api, {
-            type: "mapdata", tags: tags}).done(function(data) {
-            cb(data);
+        $.ajax( conf.api, {
+            method: 'POST', 
+            dataType: 'json',
+            data: {
+                type: "mapdata",
+                tags: tags
+             },
+            success: cb
         });
     }
 
@@ -96,7 +101,7 @@ function TagMap(options) {
                                 return L.circleMarker(latlng,
                                         getTagStyle(layerData[i].tags));
                             }
-                        })
+                        });
                     } else {
                         geoJsonLayer = L.geoJson(geo,
                                 {style: getTagStyle(layerData[i].tags)}
@@ -134,23 +139,25 @@ function TagMap(options) {
             alert('mangler værdi for tag');
    	    return;
         }
-        $.getJSON(conf.api, {
-            id: $("#id").val(),
-	    type: "createmapdata",
-	    name: $('#name').val(),
-	    content_da: $('#content_da').val(),
-	    content_en: $('#content_en').val(),
-	    geometry: JSON.stringify(layer.toGeoJSON()),
-	    tags: $('#tags').val()
+        $.ajax(conf.api, {
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                id: $("#id").val(),
+	        type: "createmapdata",
+	        name: $('#name').val(),
+	        content_da: $('#content_da').val(),
+	        content_en: $('#content_en').val(),
+	        geometry: JSON.stringify(layer.toGeoJSON()),
+	        tags: $('#tags').val()
+            }
         }).done(function(data) {
-	    //console.log("updateInfo:%o", data);
 	    layer.layerData = data[0];
             alert('gemte data');
         }).fail(function (data){
             alert('gemning fejlede!');
         });
     }
-
 
     exports.edit = function(tags) {
         function editData(layerData) {
@@ -166,16 +173,20 @@ function TagMap(options) {
             $('#id').val("");
             $('#name').val("");
             $('#content_da').val("");
-            if ($('#tags').val() == "") {
+            if ($('#tags').val() === "") {
                 alert('mangler værdi for tag');
                 map.removeLayer(layer);
             } else {
-                $.getJSON(conf.api, {
-                    type: "createmapdata",
-                    name: $('#name').val(),
-                    content_da: $('#content_da').val(),
-                    geometry: JSON.stringify(layer.toGeoJSON()),
-                    tags: $('#tags').val()
+                $.ajax(conf.api, { 
+                    dataType: 'json',
+                    method: 'POST',
+                    data: {
+                        type: "createmapdata",
+                        name: $('#name').val(),
+                        content_da: $('#content_da').val(),
+                        geometry: JSON.stringify(layer.toGeoJSON()),
+                        tags: $('#tags').val()
+                    }
                 }).done(function(data) {
                     cb(data);
                 });
@@ -235,14 +246,18 @@ function TagMap(options) {
 
             map.on('draw:edited', function(e) {
                 e.layers.eachLayer(function(layer) {
-                    $.getJSON(conf.api, {
-                        id: layer.layerData.id,
-                        type: "createmapdata",
-                        name: layer.layerData.name,
-                        content_da: layer.layerData.content_da,
-                        content_en: layer.layerData.content_en,
-                        geometry: JSON.stringify(layer.toGeoJSON()),
-                        tags: layer.layerData.tags
+                    $.ajax(conf.api, {
+                        method: 'POST',
+                        dataType: 'json',
+                        data: {
+                            id: layer.layerData.id,
+                            type: "createmapdata",
+                            name: layer.layerData.name,
+                            content_da: layer.layerData.content_da,
+                            content_en: layer.layerData.content_en,
+                            geometry: JSON.stringify(layer.toGeoJSON()),
+                            tags: layer.layerData.tags
+                        }
                     }).done(function(data) {
                         // console.log("update success:%o", data);
                     });
@@ -252,14 +267,18 @@ function TagMap(options) {
             map.on('draw:deleted', function(e) {
                 e.layers.eachLayer(function(layer) {
                     //console.log("delete:%o", layer.layerData);
-                    $.getJSON(conf.api, {
-                        id: layer.layerData.id,
-                        type: "deletemapdata",
-                        name: layer.layerData.name,
-                        content_da: layer.layerData.content_da,
-                        content_en: layer.layerData.content_en,
-                        geometry: JSON.stringify(layer.toGeoJSON()),
-                        tags: layer.layerData.tags
+                    $.ajax(conf.api, {
+                        method: 'POST',
+                        dataType: 'json',
+                        data: {
+                            id: layer.layerData.id,
+                            type: "deletemapdata",
+                            name: layer.layerData.name,
+                            content_da: layer.layerData.content_da,
+                            content_en: layer.layerData.content_en,
+                            geometry: JSON.stringify(layer.toGeoJSON()),
+                            tags: layer.layerData.tags
+                        }
                     }).done(function(data) {
                         //console.log("delete :%o", data);
                         map.removeLayer(layer);
@@ -273,19 +292,25 @@ function TagMap(options) {
    });
  
     exports.remove = function() {
-        console.log("remove");
-        $.getJSON(conf.api, {
-            id: $("#id").val(),
-            type: "deletemapdata",
-            name: $('#name').val(),
-            content_da: $('#content_da').val(),
-            content_en: $('#content_en').val(),
-            geometry: JSON.stringify(layer.toGeoJSON()),
-            tags: $('#tags').val()
+        $.ajax(conf.api, {
+           // dataType: 'json', //not json returned from server currently
+            method: 'POST',
+            data: {
+                id: $("#id").val(),
+                type: "deletemapdata",
+                name: $('#name').val(),
+                content_da: $('#content_da').val(),
+                content_en: $('#content_en').val(),
+                geometry: JSON.stringify(layer.toGeoJSON()),
+                tags: $('#tags').val()
+            }
         }).done(function(data) {
-            console.log("delete success");
+            alert("slettede data");
             map.removeLayer(layer);
-        });
+        }).fail(function(data, b) {
+          alert("sletning fejlede!");
+        //  console.log("delete failed:%o, %o", data, b);
+          });
     };
 
     return exports;
