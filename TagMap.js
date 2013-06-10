@@ -129,9 +129,13 @@ function TagMap(options) {
             }
         });
         $("#id").val("");
+        $('#id').attr("disabled", true);
         $("#name").val("");
+        $('#name').attr("disabled", true);
         $("#content_da").val("");
+        $('#content_da').attr("disabled", true);
         $("#content_en").val("");
+        $('#content_en').attr("disabled", true);
     };
 
     function updateInfo(layer) {
