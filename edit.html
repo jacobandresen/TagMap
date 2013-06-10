@@ -126,6 +126,8 @@ $(document).ready( function() {
 		$('#tags').val($('#tagsQuery').val());
 		tagmap.edit($('#tagsQuery').val());
 	    });
+            $('#remove').attr("disabled", true);
+            $('#save').attr("disabled", true); 
 	    $('#remove').on('click', function () { tagmap.remove(); });
 	    $('#clear').on('click', function () { tagmap.clear(); });
 

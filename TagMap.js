@@ -75,7 +75,7 @@ function TagMap(options) {
                 tags: tags
              },
             success: cb
-        });
+       });
     }
 
     function info(layerData) {
@@ -167,6 +167,8 @@ function TagMap(options) {
             $('#content_en').val(layerData.content_en);
             $('#geometry').val(layerData.geometry);
             $('#tags').val(layerData.tags);
+            $('#saveButton').removeAttr("disabled"); 
+            $('#remove').removeAttr("disabled");
         }
 
         function create(layer, cb) {
@@ -285,6 +287,9 @@ function TagMap(options) {
                     });
                 });
             });
+
+            $('#remove').attr("disabled", true);
+            $('#saveButton').attr("disabled", true);
         });
    };
    $('#saveButton').on('click', function() {
