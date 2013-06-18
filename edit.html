@@ -45,6 +45,7 @@
 function createTagSelector(data){
     data.splice(data.length-1,1);
     referenceTags = new Array();
+    referenceTags.push("");
     $.each(data, function(index, value){
 	//Splitting the tags by ";", which is used with multiple tags
 	var tags = value.tags.split(";");
