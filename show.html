@@ -38,9 +38,10 @@
         infoDiv: 'info',
         tagSelectorDiv: 'divs',
         baseMaps: {
-            "Historisk atlas": new L.TileLayer('http://tile.historiskatlas.dk/54/{z}/{x}/{y}.jpg'),
-            "OSM": new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
-            "cloudmade": new L.TileLayer('http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/997/256/{z}/{x}/{y}.png')
+            /*"Historisk atlas": new L.TileLayer('http://tile.historiskatlas.dk/54/{z}/{x}/{y}.jpg'),
+            "OSM": new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),*/
+            "København 1940": new L.TileLayer('http://195.181.144.34/kortdata/{z}/{x}/{y}.png',{tms:true, zIndex:1}),                    
+            "København 2013": new L.TileLayer('http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/997/256/{z}/{x}/{y}.png',{zIndex: 0})
         },
         tagConfig : [
         {
