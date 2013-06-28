@@ -4,6 +4,7 @@ function TagMap(options) {
         content: "content_da",
         mapDiv: 'map',
         infoDiv: 'info',
+        tagSelectorDiv: 'tagSelectorDiv',
         baseMaps: {
             "Historisk atlas": new L.TileLayer('http://tile.historiskatlas.dk/54/{z}/{x}/{y}.jpg'),
             "OSM": new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
@@ -85,6 +86,36 @@ function TagMap(options) {
         $("#" + conf.infoDiv).html(layerData.name);
     }
 
+
+    exports.createTagSelector = function(){
+	load([""], createSelectorWithTags);
+    }
+    
+    //Creating a select list, placing it in an element identified by
+    //config.TagSelectorDiv
+    function createSelectorWithTags(data){
+	    data.splice(data.length-1,1);
+	    var referenceTags = new Array();
+	    referenceTags.push("");
+	    $.each(data, function(index, value){
+		//Splitting the tags by ";", which is used with multiple tags
+		var tags = value.tags.split(";");
+		//Iterating through the tags for the data element
+		$.each(tags, function(counter, item){
+		    //If tag is not recorded, add it to the reference arr
+		    if($.inArray(item, referenceTags) === -1){
+			referenceTags.push(item);
+		    }
+		});
+	    });
+	
+	    var s = $("<select id=\"tagsQuery\" />");
+	    $.each(referenceTags, function(index, value){
+		$("<option />", {value: value, text: value}).appendTo(s);
+	    });
+	    $("#" + conf.tagSelectorDiv).append(s);     	
+    }
+    
     exports.show = function(tags) {
         var i;
         exports.clear();
