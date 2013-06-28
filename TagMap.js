@@ -202,7 +202,7 @@ function TagMap(options) {
             $('#content_en').val(layerData.content_en);
             $('#geometry').val(layerData.geometry);
             $('#tags').val(layerData.tags);
-            $('#id').removeAttr("disabled");
+            //$('#id').removeAttr("disabled");
             $('#name').removeAttr("disabled");
             $('#content_da').removeAttr("disabled");
             $('#content_en').removeAttr("disabled");
