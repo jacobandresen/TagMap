@@ -45,10 +45,13 @@ function TagMap(options) {
     });
 
     function getTagStyle(tagsIn) {
+        //Splitting the tags by ";", which is used with multiple tags
+        var tags = tagsIn.split(";");        
+        
         for (var t in conf.tagConfig) {
-            if (tagsIn == conf.tagConfig[t].name) {
+            if($.inArray(conf.tagConfig[t].name, tags) != -1)
+            //if (tagsIn == conf.tagConfig[t].name) {
                 return conf.tagConfig[t].style;
-            }
         }
     }
 
