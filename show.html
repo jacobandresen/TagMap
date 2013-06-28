@@ -74,6 +74,7 @@
         content: "content_da",
         mapDiv: 'map',
         infoDiv: 'info',
+        tagSelectorDiv: 'divs',
         baseMaps: {
             "Historisk atlas": new L.TileLayer('http://tile.historiskatlas.dk/54/{z}/{x}/{y}.jpg'),
             "OSM": new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
@@ -102,18 +103,14 @@
                 fillOpacity: 0.8
                 }
         },
-
-
-
-
-
-  
       ],
        lat: 55.63405,
        lng: 12.59938,
        zoom: 14
     });
-
+    
+    tagmap.createTagSelector();
+    
     $('#display').on('click', function () {
         tagmap.show( $('#tagsQuery').val() );
     });
