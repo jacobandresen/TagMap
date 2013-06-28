@@ -18,9 +18,10 @@
                 <div id="map" style="width: 500px; height: 500px; border: 1px solid #ccc"></div>
             </td>
             <td>
-            	<div id="divs"></div>
-        filter: <input type="text" id="tags"> </input>
-                <button id="display">s&oslash;g</button>
+                <div id="divs">
+                     <button id="display">Søg</button> 
+                     <button id="clear">Rens kort</button>
+                 </div>
                 <div id="info" style="width: 500px; height: 500px; border: 1px solid #ccc">
                 </div>
             </td>
@@ -114,8 +115,9 @@
     });
 
     $('#display').on('click', function () {
-        tagmap.show( $('#tags').val() );
+        tagmap.show( $('#tagsQuery').val() );
     });
+    $('#clear').on('click', function () { tagmap.clear(); });
     </script>
 </body>
 </html>
