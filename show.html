@@ -18,6 +18,7 @@
                 <div id="map" style="width: 500px; height: 500px; border: 1px solid #ccc"></div>
             </td>
             <td>
+            	<div id="divs"></div>
         filter: <input type="text" id="tags"> </input>
                 <button id="display">s&oslash;g</button>
                 <div id="info" style="width: 500px; height: 500px; border: 1px solid #ccc">
@@ -28,6 +29,45 @@
 
     <script src="TagMap.js"></script>
     <script type="text/javascript">
+    
+	function createTagSelector(data){
+	    data.splice(data.length-1,1);
+	    referenceTags = new Array();
+	    referenceTags.push("");
+	    $.each(data, function(index, value){
+		//Splitting the tags by ";", which is used with multiple tags
+		var tags = value.tags.split(";");
+		//Iterating through the tags for the data element
+		$.each(tags, function(counter, item){
+		    //If tag is not recorded, add it to the reference arr
+		    if($.inArray(item, referenceTags) === -1){
+			referenceTags.push(item);
+		    }
+		});
+	    });
+	    createSelectList(referenceTags);
+	 }
+
+	//Creates the select list using the created list of tags
+	function createSelectList(referenceTags){
+	    var s = $("<select id=\"tagsQuery\" />");
+	    $.each(referenceTags, function(index, value){
+		$("<option />", {value: value, text: value}).appendTo(s);
+	    });
+	    $("#divs").append(s);
+	}
+	
+	$(document).ready( function() {
+		//Receiving data
+		$.ajax({
+ 			url: 'http://www.politietsregisterblade.dk/api/1/?type=mapdata',
+		 	dataType: "jsonp",
+		 	success: function(data){
+		     		createTagSelector(data);
+		 	}
+		});
+	});
+    
     var tagmap = new TagMap({
         api: "api.php", //PolleAPI
         content: "content_da",
