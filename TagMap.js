@@ -92,36 +92,48 @@ function TagMap(options) {
 
     exports.createTagSelector = function(){
 	load([""], createSelectorWithTags);
-    }
+    };
     
     //Creating a select list, placing it in an element identified by
     //config.TagSelectorDiv
     function createSelectorWithTags(data){
-	    data.splice(data.length-1,1);
-	    var referenceTags = new Array();
-	    referenceTags.push("");
-	    $.each(data, function(index, value){
-		//Splitting the tags by ";", which is used with multiple tags
-		var tags = value.tags.split(";");
-		//Iterating through the tags for the data element
-		$.each(tags, function(counter, item){
-		    //If tag is not recorded, add it to the reference arr
-		    if($.inArray(item, referenceTags) === -1){
-			referenceTags.push(item);
-		    }
-		});
-	    });
+        data.splice(data.length-1,1);
+        var referenceTags = [];
+        referenceTags.push("");
+        $.each(data, function(index, value){
+            //Splitting the tags by ";", which is used with multiple tags
+            var tags = value.tags.split(";");
+            //Iterating through the tags for the data element
+            $.each(tags, function(counter, item){
+                //If tag is not recorded, add it to the reference arr
+                if($.inArray(item, referenceTags) === -1){
+                    referenceTags.push(item);
+                }
+            });
+        });
 	
-	    var s = $("<select id=\"tagsQuery\" />");
-	    $.each(referenceTags, function(index, value){
-		$("<option />", {value: value, text: value}).appendTo(s);
-	    });
-	    $("#" + conf.tagSelectorDiv).append(s);     	
+	var s = $("<select id=\"tagsQuery\" />");
+	$.each(referenceTags, function(index, value){
+            $("<option />", {value: value, text: value}).appendTo(s);
+	});
+        $("#" + conf.tagSelectorDiv).append(s);
     }
     
     exports.show = function(tags) {
         var i;
         exports.clear();
+
+        function pointToLayer (feature, latlng) {
+            return L.circleMarker(latlng,
+               getTagStyle(layerData[i].tags));
+        }
+
+
+        function registerEvents( geoJsonLayer ) {
+             geoJsonLayer.on("click", function(e) { info(this.layerData); });
+             geoJsonLayer.on("mouseover", function(e) { overlay(this.layerData); });
+        }
+
         load(tags, function(data) {
             layerData = data;
             for (i = 0; i < layerData.length - 1; i++) {
@@ -131,10 +143,7 @@ function TagMap(options) {
                     if (geo.type == "Point") {
                         geoJsonLayer = L.geoJson(geo, {
                             style: getTagStyle(layerData[i].tags),
-                            pointToLayer: function(feature, latlng) {
-                                return L.circleMarker(latlng,
-                                        getTagStyle(layerData[i].tags));
-                            }
+                            pointToLayer: pointToLayer
                         });
                     } else {
                         geoJsonLayer = L.geoJson(geo,
@@ -142,12 +151,7 @@ function TagMap(options) {
                         );
                     }
                     geoJsonLayer.layerData = layerData[i];
-                    geoJsonLayer.on("click", function(e) {
-                        info(this.layerData);
-                    });
-                    geoJsonLayer.on("mouseover", function(e) {
-                        overlay(this.layerData);
-                    });
+                    registerEvents(geoJsonLayer);
                     map.addLayer(geoJsonLayer);
                 } catch (e) {
                     console.log("error:%o", e);
@@ -175,22 +179,22 @@ function TagMap(options) {
     function updateInfo(layer) {
         if ($('#tags').val() === "") {
             alert('mangler værdi for tag');
-   	    return;
+            return;
         }
         $.ajax(conf.api, {
             method: 'POST',
             dataType: 'json',
             data: {
                 id: $("#id").val(),
-	        type: "createmapdata",
-	        name: $('#name').val(),
-	        content_da: $('#content_da').val(),
-	        content_en: $('#content_en').val(),
-	        geometry: JSON.stringify(layer.toGeoJSON()),
-	        tags: $('#tags').val()
+                type: "createmapdata",
+                name: $('#name').val(),
+                content_da: $('#content_da').val(),
+                content_en: $('#content_en').val(),
+                geometry: JSON.stringify(layer.toGeoJSON()),
+                tags: $('#tags').val()
             }
         }).done(function(data) {
-	    layer.layerData = data[0];
+            layer.layerData = data[0];
             alert('gemte data');
         }).fail(function (data){
             alert('gemning fejlede!');
@@ -257,16 +261,21 @@ function TagMap(options) {
             exports.clear();
             layerData = data;
             var i;
+
+            function registerEvents (geoJsonLayer) {
+                geoJsonLayer.on("click", function(ev) {
+                    layer = geoJsonLayer;
+                    editData(this.layerData);
+                });
+            }
+
             for (i = 0; i < layerData.length - 1; i++) {
                 try {
                     if (layerData[i].geometry) {
                         var geo = $.parseJSON(layerData[i].geometry);
                         var geoJsonLayer = L.GeoJSON.geometryToLayer(geo);
                         geoJsonLayer.layerData = layerData[i];
-                        geoJsonLayer.on("click", function(ev) {
-                            layer = geoJsonLayer;
-                            editData(this.layerData);
-                        });
+                        registerEvents(geoJsonLayer);
                         map.addLayer(geoJsonLayer);
                     }
                 } catch (e) {
@@ -343,7 +352,7 @@ function TagMap(options) {
    });
  
     exports.remove = function() {
-        if ($('#id').val() == "" || $('#name').val() == "" || $('#content_da').val() == "") {
+        if ($('#id').val() === "" || $('#name').val() === "" || $('#content_da').val() === "") {
            alert("id,navn og indhold skal være udfyldt før at du får lov til at slette!");
            return;
         }
