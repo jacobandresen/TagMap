@@ -118,7 +118,7 @@ function TagMap(options) {
 	});
         $("#" + conf.tagSelectorDiv).append(s);
     }
-    
+   
     exports.show = function(tags) {
         var i;
         exports.clear();
@@ -196,27 +196,60 @@ function TagMap(options) {
         }).done(function(data) {
             layer.layerData = data[0];
             alert('gemte data');
+            reloadAfterEdit( $('#tags').val());
+            editData(layer.layerData);
         }).fail(function (data){
             alert('gemning fejlede!');
         });
     }
 
-    exports.edit = function(tags) {
-        function editData(layerData) {
-            $('#id').val(layerData.id);
-            $('#name').val(layerData.name);
-            $('#content_da').val(layerData.content_da);
-            $('#content_en').val(layerData.content_en);
-            $('#geometry').val(layerData.geometry);
-            $('#tags').val(layerData.tags);
-            //$('#id').removeAttr("disabled");
-            $('#name').removeAttr("disabled");
-            $('#content_da').removeAttr("disabled");
-            $('#content_en').removeAttr("disabled");
-            $('#saveButton').removeAttr("disabled"); 
-            $('#remove').removeAttr("disabled");
-        }
+    function editData(layerData) {
+        $('#id').val(layerData.id);
+        $('#name').val(layerData.name);
+        $('#content_da').val(layerData.content_da);
+        $('#content_en').val(layerData.content_en);
+        $('#geometry').val(layerData.geometry);
+        $('#tags').val(layerData.tags);
+        //$('#id').removeAttr("disabled");
+        $('#name').removeAttr("disabled");
+        $('#content_da').removeAttr("disabled");
+        $('#content_en').removeAttr("disabled");
+        $('#saveButton').removeAttr("disabled"); 
+        $('#remove').removeAttr("disabled");
+    }
 
+    function registerEditEvents (geoJsonLayer) {
+	geoJsonLayer.on("click", function(ev) {
+            layer = geoJsonLayer;
+            editData(this.layerData);
+	});
+    }
+
+    function loadMapData (layerData) {
+        for (i = 0; i < layerData.length - 1; i++) {
+	    try {
+	        if (layerData[i].geometry) {
+		    var geo = $.parseJSON(layerData[i].geometry);
+		    var geoJsonLayer = L.GeoJSON.geometryToLayer(geo);
+		    geoJsonLayer.layerData = layerData[i];
+		    registerEditEvents(geoJsonLayer);
+		    map.addLayer(geoJsonLayer);
+	        }
+	    } catch (e) {
+	        console.log("rendering failed:%o", e);
+	    }
+       }
+    }
+
+    function reloadAfterEdit (tags) {
+        exports.clear();
+        load( tags, function (data) {
+	    loadMapData( data);
+            $('#tagsQuery').val(tags);
+        });
+    }
+
+    exports.edit = function(tags) {
         function create(layer, cb) {
             $('#id').val("");
             $('#name').val("");
@@ -261,27 +294,7 @@ function TagMap(options) {
             exports.clear();
             layerData = data;
             var i;
-
-            function registerEvents (geoJsonLayer) {
-                geoJsonLayer.on("click", function(ev) {
-                    layer = geoJsonLayer;
-                    editData(this.layerData);
-                });
-            }
-
-            for (i = 0; i < layerData.length - 1; i++) {
-                try {
-                    if (layerData[i].geometry) {
-                        var geo = $.parseJSON(layerData[i].geometry);
-                        var geoJsonLayer = L.GeoJSON.geometryToLayer(geo);
-                        geoJsonLayer.layerData = layerData[i];
-                        registerEvents(geoJsonLayer);
-                        map.addLayer(geoJsonLayer);
-                    }
-                } catch (e) {
-                    console.log("rendering failed:%o", e);
-                }
-            }
+	    loadMapData( layerData);
 
             map.on('draw:created', function(e) {
                 var type = e.layerType, drawnLayer = e.layer;
@@ -370,7 +383,8 @@ function TagMap(options) {
             }
         }).done(function(data) {
             alert("slettede data");
-            map.removeLayer(layer);
+            //map.removeLayer(layer);
+            reloadAfterEdit($('#tags').val());
         }).fail(function(data, b) {
           alert("sletning fejlede!");
         //  console.log("delete failed:%o, %o", data, b);
