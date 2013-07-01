@@ -310,48 +310,6 @@ function TagMap(options) {
                 });
             });
 
-            map.on('draw:edited', function(e) {
-                e.layers.eachLayer(function(layer) {
-                    $.ajax(conf.api, {
-                        method: 'POST',
-                        dataType: 'json',
-                        data: {
-                            id: layer.layerData.id,
-                            type: "createmapdata",
-                            name: layer.layerData.name,
-                            content_da: layer.layerData.content_da,
-                            content_en: layer.layerData.content_en,
-                            geometry: JSON.stringify(layer.toGeoJSON()),
-                            tags: layer.layerData.tags
-                        }
-                    }).done(function(data) {
-                        // console.log("update success:%o", data);
-                    });
-                });
-            });
-
-            map.on('draw:deleted', function(e) {
-                e.layers.eachLayer(function(layer) {
-                    //console.log("delete:%o", layer.layerData);
-                    $.ajax(conf.api, {
-                        method: 'POST',
-                        dataType: 'json',
-                        data: {
-                            id: layer.layerData.id,
-                            type: "deletemapdata",
-                            name: layer.layerData.name,
-                            content_da: layer.layerData.content_da,
-                            content_en: layer.layerData.content_en,
-                            geometry: JSON.stringify(layer.toGeoJSON()),
-                            tags: layer.layerData.tags
-                        }
-                    }).done(function(data) {
-                        //console.log("delete :%o", data);
-                        map.removeLayer(layer);
-                    });
-                });
-            });
-
             $('#id').attr("disabled", true);
             $('#name').attr("disabled", true);
             $('#content_da').attr("disabled", true);
