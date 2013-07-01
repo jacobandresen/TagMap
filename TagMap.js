@@ -352,8 +352,8 @@ function TagMap(options) {
    });
  
     exports.remove = function() {
-        if ($('#id').val() === "" || $('#name').val() === "" || $('#content_da').val() === "") {
-           alert("id,navn og indhold skal være udfyldt før at du får lov til at slette!");
+        if ($('#id').val() === "") {
+           alert("id skal være udfyldt før at du får lov til at slette!");
            return;
         }
         $.ajax(conf.api, {
