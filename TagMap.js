@@ -131,7 +131,7 @@ function TagMap(options) {
 
         function registerEvents( geoJsonLayer ) {
              geoJsonLayer.on("click", function(e) { info(this.layerData); });
-             geoJsonLayer.on("mouseover", function(e) { overlay(this.layerData); });
+             //geoJsonLayer.on("mouseover", function(e) { overlay(this.layerData); });
         }
 
         load(tags, function(data) {
