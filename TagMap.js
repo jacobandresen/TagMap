@@ -61,7 +61,7 @@ function TagMap(options) {
             zoom: conf.zoom, //15,
             layers: layers
         });
-        L.control.layers(conf.baseMaps).addTo(map);
+        L.control.layers(conf.baseMaps, conf.overlayMaps).addTo(map);
         return map;
     }
     var map = createMap();
