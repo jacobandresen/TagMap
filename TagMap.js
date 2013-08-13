@@ -73,7 +73,7 @@ function TagMap(options) {
     function load(tags, cb) {
         $.ajax( conf.api, {
             method: 'POST',
-            dataType: 'jsonp',
+            dataType: 'json',
             data: {
                 type: "mapdata",
                 tags: tags
