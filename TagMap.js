@@ -1,7 +1,6 @@
 function TagMap(options) {
-    //Default configuration if no options var is given
     var conf = options || {
-        api: "http://www.politietsregisterblade.dk/api/",
+        api: "api.php",
         content: "content_da",
         mapDiv: 'map',
         infoDiv: 'info',
@@ -39,14 +38,12 @@ function TagMap(options) {
         lng: 12.59938,
         zoom: 14
     };
-    
-    //Creating the base layers
+
     var layers = [];
     $.each(conf.baseMaps, function(a, b) {
         layers.push(b);
     });
 
-    //Getting the style of the tags based on the tag style
     function getTagStyle(tagsIn) {
         //Splitting the tags by ";", which is used with multiple tags
         var tags = tagsIn.split(";");        
@@ -57,9 +54,7 @@ function TagMap(options) {
                 return conf.tagConfig[t].style;
         }
     }
-    
-    //Creating the map, including base layers and overlay maps.
-    //The var map is representing the whole map
+
     function createMap() {
         var map = new L.Map(conf.mapDiv, {
             center: new L.LatLng(conf.lat, conf.lng),
@@ -69,19 +64,16 @@ function TagMap(options) {
         L.control.layers(conf.baseMaps, conf.overlayMaps).addTo(map);
         return map;
     }
-    
-    //Private var used to access the map
     var map = createMap();
 
     var exports = {};
     var layerData;
     var layer;
-    
-    //Function used to load tags from the API
+
     function load(tags, cb) {
         $.ajax( conf.api, {
             method: 'POST', 
-            dataType: 'jsonp',
+            dataType: 'json',
             data: {
                 type: "mapdata",
                 tags: tags
@@ -89,17 +81,15 @@ function TagMap(options) {
             success: cb
        });
     }
-    
-    //Sets the content of the tag in the infoDiv
+
     function info(layerData) {
         $("#" + conf.infoDiv).html(layerData[conf.content]);
     }
-    //Sets the name of the tag in the infoDiv
     function overlay(layerData) {
         $("#" + conf.infoDiv).html(layerData.name);
     }
 
-    //Public function that creates a drop down of tags based on all available tags
+
     exports.createTagSelector = function(){
 	load([""], createSelectorWithTags);
     };
@@ -129,7 +119,6 @@ function TagMap(options) {
         $("#" + conf.tagSelectorDiv).append(s);
     }
    
-    //Displays the map and tags
     exports.show = function(tags) {
         var i;
         exports.clear();
@@ -170,8 +159,7 @@ function TagMap(options) {
             }
         });
     };
-    
-    //Clears of the map tags
+
     exports.clear = function() {
         map.eachLayer(function(layer) {
             if (layer.layerData) {
@@ -188,7 +176,6 @@ function TagMap(options) {
         $('#content_en').attr("disabled", true);
     };
 
-    //Updates the marker info
     function updateInfo(layer) {
         if ($('#tags').val() === "") {
             alert('mangler værdi for tag');
@@ -196,7 +183,7 @@ function TagMap(options) {
         }
         $.ajax(conf.api, {
             method: 'POST',
-            dataType: 'jsonp',
+            dataType: 'json',
             data: {
                 id: $("#id").val(),
                 type: "createmapdata",
@@ -216,7 +203,6 @@ function TagMap(options) {
         });
     }
 
-    //Sets the data of the marker in the GUI
     function editData(layerData) {
         $('#id').val(layerData.id);
         $('#name').val(layerData.name);
@@ -231,26 +217,14 @@ function TagMap(options) {
         $('#saveButton').removeAttr("disabled"); 
         $('#remove').removeAttr("disabled");
     }
-    
-    //Registers the edit event
+
     function registerEditEvents (geoJsonLayer) {
 	geoJsonLayer.on("click", function(ev) {
             layer = geoJsonLayer;
             editData(this.layerData);
 	});
     }
-    
-    //Registers the click on marker event. TODO: Implement
-    function registerMarkerClickEvent(){
-        map.markerLayer.on('click',function(e) {
-           // resetColors();
-            e.layer.feature.properties['old-color'] = e.layer.feature.properties['marker-color'];
-            e.layer.feature.properties['marker-color'] = '#000';
-            map.markerLayer.setGeoJSON(geoJsonLayer);
-        });        
-    }
-    
-    //Loads the map data including parsing of the GEOJSON loaded from the server
+
     function loadMapData (layerData) {
         for (i = 0; i < layerData.length - 1; i++) {
 	    try {
@@ -266,8 +240,7 @@ function TagMap(options) {
 	    }
        }
     }
-    
-    //Reloads the markers after edit
+
     function reloadAfterEdit (tags) {
         exports.clear();
         load( tags, function (data) {
@@ -275,8 +248,7 @@ function TagMap(options) {
             $('#tagsQuery').val(tags);
         });
     }
-    
-    //Edits a marker and adds tags
+
     exports.edit = function(tags) {
         function create(layer, cb) {
             $('#id').val("");
@@ -287,7 +259,7 @@ function TagMap(options) {
                 map.removeLayer(layer);
             } else {
                 $.ajax(conf.api, { 
-                    dataType: 'jsonp',
+                    dataType: 'json',
                     method: 'POST',
                     data: {
                         type: "createmapdata",
@@ -301,13 +273,12 @@ function TagMap(options) {
                 });
             }
         }
-        //Updating the marker
         function updateLayer(layer) {
             layer = layer;
             layerData = layer.layerData;
             updateInfo(layer);
         }
-        
+
         if (!map.editStarted) {
             var drawControl = new L.Control.Draw({
                 draw: {
@@ -318,8 +289,7 @@ function TagMap(options) {
             map.addControl(drawControl);
             map.editStarted = true;
         }
-        
-        //Loads the markers
+
         load(tags, function(data) {
             exports.clear();
             layerData = data;
@@ -348,13 +318,10 @@ function TagMap(options) {
             $('#saveButton').attr("disabled", true);
         });
    };
-   
-   //Updates the marker data on click
    $('#saveButton').on('click', function() {
        updateInfo(layer);
    });
-   
-   //Removes a marker by a given id
+ 
     exports.remove = function() {
         if ($('#id').val() === "") {
            alert("id skal være udfyldt før at du får lov til at slette!");
@@ -363,7 +330,6 @@ function TagMap(options) {
         $.ajax(conf.api, {
            // dataType: 'json', //not json returned from server currently
             method: 'POST',
-            dataType: 'jsonp',
             data: {
                 id: $("#id").val(),
                 type: "deletemapdata",
@@ -383,6 +349,5 @@ function TagMap(options) {
           });
     };
 
-    //Makes all exports functions public
     return exports;
 }

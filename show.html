@@ -36,7 +36,7 @@
     <script type="text/javascript">
     
     var tagmap = new TagMap({
-        api: "http://www.politietsregisterblade.dk/api/",
+        api: "api.php", //PolleAPI
         content: "content_da",
         mapDiv: 'map',
         infoDiv: 'info',
@@ -47,7 +47,7 @@
             "København 2013": new L.TileLayer('http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/997/256/{z}/{x}/{y}.png',{zIndex: 0})
         },
         overlayMaps: {
-            "København 1940": new L.TileLayer('http://www.politietsregisterblade.dk/kortdata/1/{z}/{x}/{y}.png',{ tms:true, zIndex:1 })                 
+            "København 1940": new L.TileLayer('http://195.181.144.34/kortdata/{z}/{x}/{y}.png',{ tms:true, zIndex:1 })                 
         },
         tagConfig : [
         {
