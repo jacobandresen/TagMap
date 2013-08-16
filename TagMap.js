@@ -241,12 +241,22 @@ function TagMap(options) {
     }
     
     //Registers the click on marker event. TODO: Implement
-    function registerMarkerClickEvent(){
-        map.markerLayer.on('click',function(e) {
-           // resetColors();
-            e.layer.feature.properties['old-color'] = e.layer.feature.properties['marker-color'];
-            e.layer.feature.properties['marker-color'] = '#000';
-            map.markerLayer.setGeoJSON(geoJsonLayer);
+    function registerMarkerClickEvent(geoJsonLayer){
+        geoJsonLayer.on('click',function(e) {
+        /*    var myIcon = L.icon({
+                iconUrl: 'libs/images/marker-icon-selected.png',
+                //iconRetinaUrl: 'my-icon@2x.png',
+                //iconSize: [38, 95],
+                //iconAnchor: [22, 94],
+              //  popupAnchor: [-3, -76],
+                shadowUrl: 'libs/images/marker-shadow.png',
+              //  shadowRetinaUrl: 'my-icon-shadow@2x.png',
+              //  shadowSize: [68, 95],
+              //  shadowAnchor: [22, 94]
+            });*/
+            var selectedIcon = new L.Icon({iconUrl : 'libs/images/marker-icon-selected.png', iconAnchor: [12, 41]});
+            
+            e.target.setIcon(selectedIcon);
         });        
     }
     
@@ -259,6 +269,9 @@ function TagMap(options) {
 		    var geoJsonLayer = L.GeoJSON.geometryToLayer(geo);
 		    geoJsonLayer.layerData = layerData[i];
 		    registerEditEvents(geoJsonLayer);
+                    //Test of marker click event
+                    registerMarkerClickEvent(geoJsonLayer);
+                    
 		    map.addLayer(geoJsonLayer);
 	        }
 	    } catch (e) {
