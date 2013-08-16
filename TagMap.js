@@ -147,11 +147,14 @@ function TagMap(options) {
 
         load(tags, function(data) {
             layerData = data;
+            layerLatLngs = [];
             for (i = 0; i < layerData.length - 1; i++) {
                 try {
                     var geo = $.parseJSON(layerData[i].geometry);
                     var geoJsonLayer;
                     if (geo.type == "Point") {
+                        //Getting the latLng for each point, using it to focus the map later on
+                        layerLatLngs.push(new L.LatLng(geo.coordinates[1], geo.coordinates[0]));
                         geoJsonLayer = L.geoJson(geo, {
                             style: getTagStyle(layerData[i].tags),
                             pointToLayer: pointToLayer
@@ -164,9 +167,16 @@ function TagMap(options) {
                     geoJsonLayer.layerData = layerData[i];
                     registerEvents(geoJsonLayer);
                     map.addLayer(geoJsonLayer);
+                    
                 } catch (e) {
                     console.log("error:%o", e);
                 }
+            }
+            
+            //Focusing on the selected markers, if any
+            if(layerLatLngs.length > 0){
+                var bounds = new L.LatLngBounds(layerLatLngs);
+                map.fitBounds(bounds);
             }
         });
     };
