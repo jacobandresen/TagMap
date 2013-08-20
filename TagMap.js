@@ -6,6 +6,8 @@ function TagMap(options) {
         mapDiv: 'map',
         infoDiv: 'info',
         tagSelectorDiv: 'tagSelectorDiv',
+        filter: 'selectlist',
+        showLayerControls : false,
         baseMaps: {
             "Historisk atlas": new L.TileLayer('http://tile.historiskatlas.dk/54/{z}/{x}/{y}.jpg'),
             "OSM": new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
@@ -37,14 +39,40 @@ function TagMap(options) {
         ],
         lat: 55.63405,
         lng: 12.59938,
-        zoom: 14
+        zoom: 14,
+        predefinedFilterBoxes: [
+//            {
+//                name: 'Jøderazzia',
+//                tagName: 'jøderazzia',
+//                selected: false
+//            },
+//            {
+//                name: 'Hjælpere',
+//                tagName: 'hjælper',
+//                selected: false
+//            }
+        ]
     };
     
     //Creating the base layers
     var layers = [];
+    //Adding base map
     $.each(conf.baseMaps, function(a, b) {
         layers.push(b);
     });
+    //Adding additional layers
+    $.each(conf.overlayMaps, function(a, b) {
+        layers.push(b);
+    });
+
+    //Private var used to access the map
+    var map = createMap();
+
+    var exports = {};
+    var layerData;
+    var layer;
+    
+    createFilter(conf.filter);
 
     //Getting the style of the tags based on the tag style
     function getTagStyle(tagsIn) {
@@ -66,25 +94,26 @@ function TagMap(options) {
             zoom: conf.zoom, //15,
             layers: layers
         });
-        L.control.layers(conf.baseMaps, conf.overlayMaps).addTo(map);
+        //This line creates the layer controls. Maybe not needed
+        if(conf.showLayerControls)
+            L.control.layers(conf.baseMaps, conf.overlayMaps).addTo(map);
+        
+        L.control.scale({imperial: false}).addTo(map);
         return map;
     }
     
-    //Private var used to access the map
-    var map = createMap();
-
-    var exports = {};
-    var layerData;
-    var layer;
-    
     //Function used to load tags from the API
-    function load(tags, cb) {
+    function load(tags, cb, selectType) {
+        if(!selectType)
+            selectType = 'AND';
+        
         $.ajax( conf.api, {
             method: 'POST', 
             dataType: 'jsonp',
             data: {
                 type: "mapdata",
-                tags: tags
+                tags: tags,
+                selecttype: selectType
              },
             success: cb
        });
@@ -99,16 +128,97 @@ function TagMap(options) {
         $("#" + conf.infoDiv).html(layerData.name);
     }
 
-    //Public function that creates a drop down of tags based on all available tags
-    exports.createTagSelector = function(){
-	load([""], createSelectorWithTags);
-    };
+    //Public function that creates a drop down of tags based on all available tags   
+    function createFilter(type){
+        if(type){
+            switch(type){
+                case 'selectlist':
+                    load([""], createSelectlistFilters);   
+                    break;
+                
+                case 'checkbox':
+                    load("", createCheckboxFilters);
+                    break;
+            }
+        }
+    }
     
     //Creating a select list, placing it in an element identified by
     //config.TagSelectorDiv
-    function createSelectorWithTags(data){
+    //TODO: By now, the identifiers of button and select list are hardcoded
+    function createSelectlistFilters(data){
+        var referenceTags = [];
+        
+        referenceTags = getUniqueTags(data);
+        
+	var s = $("<select id=\"tagsQuery\" />");
+	$.each(referenceTags, function(index, value){
+            $("<option />", {value: value, text: value}).appendTo(s);
+	});
+        $("#" + conf.tagSelectorDiv).append(s);
+        
+        $('#display').on('click', function () {
+            filterBySelectlist();
+        });
+        
+            
+        $('#clear').on('click', function () { exports.clear(); });
+    }
+    
+    //Performs a filtering by getting the selected tag from the select list
+    //TODO: By now, the identifiers of button and select list are hardcoded
+    function filterBySelectlist(){
+        exports.show( $('#tagsQuery').val() ); 
+    }    
+    
+    //Creates checkboxes used to filtering tags
+    function createCheckboxFilters(data){
+        var filters = [];
+        if(conf.predefinedFilterBoxes){
+            filters = conf.predefinedFilterBoxes;
+        }
+        else{
+            var tags = getUniqueTags(data);
+            $.each(tags, function(index, value){
+                filters.push({selected: false, tagName: value, name: value.charAt(0).toUpperCase() + value.slice(1)});
+            });
+        }
+        
+        $.each(filters, function(index, value){
+            var elementId = value.name + '_id';
+
+            //Adding the checkbox
+            $('<input />', { type: 'checkbox', id: elementId, value: value.tagName, checked: value.selected, class: 'checkboxFilter' }).appendTo($("#" + conf.tagSelectorDiv));
+
+            //Adding a label
+            $('<label />', { 'for': elementId, text: value.name }).appendTo("#" + conf.tagSelectorDiv);
+
+            //Adding a event handler for filtering
+            //On click all selected checkboxes is used to filter the result
+            $('#' + elementId).click(function(){
+                filterByCheckBoxes();
+            });
+        });
+    }
+    
+    //Performs a filtering by getting tags from checked check boxes
+    function filterByCheckBoxes(){
+        var tags = "";
+        var checkboxes = $("input[class='checkboxFilter']");
+
+        $.each(checkboxes, function(index, value){
+            if(value.checked)
+                tags = tags + value.value + ";";
+        });
+
+        exports.show(tags);        
+    }
+   
+    //Gets all markers, and extracts the unique tags
+    function getUniqueTags(data){
         data.splice(data.length-1,1);
         var referenceTags = [];
+        //Adding a blank
         referenceTags.push("");
         $.each(data, function(index, value){
             //Splitting the tags by ";", which is used with multiple tags
@@ -121,16 +231,12 @@ function TagMap(options) {
                 }
             });
         });
-	
-	var s = $("<select id=\"tagsQuery\" />");
-	$.each(referenceTags, function(index, value){
-            $("<option />", {value: value, text: value}).appendTo(s);
-	});
-        $("#" + conf.tagSelectorDiv).append(s);
-    }
+
+        return referenceTags;
+    }   
    
     //Displays the map and tags
-    exports.show = function(tags) {
+    exports.show = function(tags, selectType) {
         var i;
         exports.clear();
 
@@ -178,7 +284,7 @@ function TagMap(options) {
                 var bounds = new L.LatLngBounds(layerLatLngs);
                 map.fitBounds(bounds);
             }
-        });
+        }, selectType);
     };
     
     //Clears of the map tags

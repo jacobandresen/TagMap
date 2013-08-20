@@ -11,6 +11,8 @@
 
 	<script src="libs/leaflet-src.js"></script>
         <script src="http://code.jquery.com/jquery-1.10.0.js"></script>
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+        <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>        
 </head>
 <body>
 
@@ -31,7 +33,9 @@
             </td>
         </tr>
     </table>
-
+    <h2>Datovælger</h2>
+    <div id="dateSliderText"></div>
+    <div id="dateSlider"></div>
     <script src="TagMap.js"></script>
     <script type="text/javascript">
     
@@ -41,13 +45,16 @@
         mapDiv: 'map',
         infoDiv: 'info',
         tagSelectorDiv: 'divs',
+        filter: 'selectlist',
+        showLayerControls: false,
         baseMaps: {
            /* "Historisk atlas": new L.TileLayer('http://tile.historiskatlas.dk/54/{z}/{x}/{y}.jpg'),
             "OSM": new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),*/
             "København 2013": new L.TileLayer('http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/997/256/{z}/{x}/{y}.png',{zIndex: 0})
         },
         overlayMaps: {
-            "København 1940": new L.TileLayer('http://www.politietsregisterblade.dk/kortdata/1/{z}/{x}/{y}.png',{ tms:true, zIndex:1 })                 
+            "København 1940": new L.TileLayer('http://www.politietsregisterblade.dk/kortdata/1/{z}/{x}/{y}.png',{ tms:true, zIndex:1 }), 
+            "Sjælland 1940": new L.TileLayer('http://www.politietsregisterblade.dk/kortdata/2/{z}/{x}/{y}.png',{ tms:true, zIndex:2 })                 
         },
         tagConfig : [
         {
@@ -97,15 +104,96 @@
       ],
        lat: 55.67899,
        lng: 12.57522,
-       zoom: 12
+       zoom: 12,
+        predefinedFilterBoxes: [
+            {
+                name: 'Jøderazzia',
+                tagName: 'jøderazzia',
+                selected: false
+            },
+            {
+                name: 'Hjælpere',
+                tagName: 'hjælper',
+                selected: false
+            },
+            {
+                name: 'Socialtjenesten',
+                tagName: 'socialtjeneste',
+                selected: false
+            }   
+        ]       
     });
     
-    tagmap.createTagSelector();
+    //TagString used to retrieve the date tags selected with the date slider
+    var tagStr = "";
     
-    $('#display').on('click', function () {
-        tagmap.show( $('#tagsQuery').val() );
-    });
-    $('#clear').on('click', function () { tagmap.clear(); });
+    //Updates the tagString based on the selected slider values, which are converted to
+    //date tags. The chosen dates are displayed in #dateSliderText
+    var updateDateInfo = function(){
+        var values = $("#dateSlider").slider("values");
+        tagStr = "";
+        
+        $.each(sliderToDate.slice(values[0],values[1]), function(index,value){
+            tagStr = tagStr + value + ";";
+        });
+        tagStr = tagStr.substring(0, tagStr.length-1);
+        
+        $("#dateSliderText").html(sliderToDate[values[0]] + "-" + sliderToDate[values[1]]);
+    };
+    
+    //Updates the tags and redraws the markers having the selected date tags
+    var updateFilter = function(){
+        updateDateInfo();
+        tagmap.show(tagStr, 'OR');
+    }
+    
+    //Creating the slider
+    $( "#dateSlider" ).slider({
+      orientation: "horizontal",
+      range: true,
+      max: 32,
+      values: [0, 5],
+      slide: updateDateInfo,
+      change: updateFilter
+    });  
+    
+    //Date array used to convert slider values to dates 
+    //(the array position is simply used to convert the slider value to a date)
+    var sliderToDate = [
+            "28/9",
+            "29/9",
+            "30/9",
+            "1/10",
+            "2/10",
+            "3/10",
+            "4/10",
+            "5/10",
+            "6/10",
+            "7/10",
+            "8/10",
+            "9/10",
+            "10/10",
+            "11/10",
+            "12/10",
+            "13/10",
+            "14/10",
+            "15/10",
+            "16/10",
+            "17/10",
+            "18/10",
+            "19/10",
+            "20/10",
+            "21/10",
+            "22/10",
+            "23/10",
+            "24/10",
+            "25/10",
+            "26/10",
+            "27/10",
+            "28/10",
+            "29/10",
+            "30/10"
+    ];
     </script>
 </body>
 </html>
