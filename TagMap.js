@@ -1,44 +1,4 @@
-function TagMap(options) {
-    var conf = options || {
-        api: "api.php",
-        content: "content_da",
-        mapDiv: 'map',
-        infoDiv: 'info',
-        tagSelectorDiv: 'tagSelectorDiv',
-        baseMaps: {
-            "Historisk atlas": new L.TileLayer('http://tile.historiskatlas.dk/54/{z}/{x}/{y}.jpg'),
-            "OSM": new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
-            "cloudmade": new L.TileLayer('http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/997/256/{z}/{x}/{y}.png')
-        },
-        tagConfig: [
-            {
-                name: "default",
-                style: {
-                    radius: 8,
-                    fillColor: "#ffcc47",
-                    color: "#ff0000",
-                    weight: 5,
-                    opacity: 1,
-                    fillOpacity: 0.8
-                }
-            },
-            {
-                name: "test102",
-                style: {
-                    radius: 8,
-                    fillColor: "#cccc47",
-                    color: "#ffff00",
-                    weight: 5,
-                    opacity: 0.5,
-                    fillOpacity: 0.3
-                }
-            }
-        ],
-        lat: 55.63405,
-        lng: 12.59938,
-        zoom: 14
-    };
-
+function TagMap(conf) {
     var layers = [];
     $.each(conf.baseMaps, function(a, b) {
         layers.push(b);
