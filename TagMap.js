@@ -46,8 +46,8 @@ function TagMap(options) {
 
     function getTagStyle(tagsIn) {
         //Splitting the tags by ";", which is used with multiple tags
-        var tags = tagsIn.split(";");        
-        
+        var tags = tagsIn.split(";");
+
         for (var t in conf.tagConfig) {
             if($.inArray(conf.tagConfig[t].name, tags) != -1)
             //if (tagsIn == conf.tagConfig[t].name) {
@@ -72,7 +72,7 @@ function TagMap(options) {
 
     function load(tags, cb) {
         $.ajax( conf.api, {
-            method: 'POST', 
+            method: 'POST',
             dataType: 'json',
             data: {
                 type: "mapdata",
@@ -89,11 +89,10 @@ function TagMap(options) {
         $("#" + conf.infoDiv).html(layerData.name);
     }
 
-
     exports.createTagSelector = function(){
-	load([""], createSelectorWithTags);
+        load([""], createSelectorWithTags);
     };
-    
+
     //Creating a select list, placing it in an element identified by
     //config.TagSelectorDiv
     function createSelectorWithTags(data){
@@ -111,14 +110,14 @@ function TagMap(options) {
                 }
             });
         });
-	
-	var s = $("<select id=\"tagsQuery\" />");
-	$.each(referenceTags, function(index, value){
+
+        var s = $("<select id=\"tagsQuery\" />");
+        $.each(referenceTags, function(index, value){
             $("<option />", {value: value, text: value}).appendTo(s);
-	});
+        });
         $("#" + conf.tagSelectorDiv).append(s);
     }
-   
+
     exports.show = function(tags) {
         var i;
         exports.clear();
@@ -127,7 +126,6 @@ function TagMap(options) {
             return L.circleMarker(latlng,
                getTagStyle(layerData[i].tags));
         }
-
 
         function registerEvents( geoJsonLayer ) {
              geoJsonLayer.on("click", function(e) { info(this.layerData); });
@@ -214,37 +212,37 @@ function TagMap(options) {
         $('#name').removeAttr("disabled");
         $('#content_da').removeAttr("disabled");
         $('#content_en').removeAttr("disabled");
-        $('#saveButton').removeAttr("disabled"); 
+        $('#saveButton').removeAttr("disabled");
         $('#remove').removeAttr("disabled");
     }
 
     function registerEditEvents (geoJsonLayer) {
-	geoJsonLayer.on("click", function(ev) {
+        geoJsonLayer.on("click", function(ev) {
             layer = geoJsonLayer;
             editData(this.layerData);
-	});
+        });
     }
 
     function loadMapData (layerData) {
         for (i = 0; i < layerData.length - 1; i++) {
-	    try {
-	        if (layerData[i].geometry) {
-		    var geo = $.parseJSON(layerData[i].geometry);
-		    var geoJsonLayer = L.GeoJSON.geometryToLayer(geo);
-		    geoJsonLayer.layerData = layerData[i];
-		    registerEditEvents(geoJsonLayer);
-		    map.addLayer(geoJsonLayer);
-	        }
-	    } catch (e) {
-	        console.log("rendering failed:%o", e);
-	    }
-       }
+            try {
+                if (layerData[i].geometry) {
+                    var geo = $.parseJSON(layerData[i].geometry);
+                    var geoJsonLayer = L.GeoJSON.geometryToLayer(geo);
+                    geoJsonLayer.layerData = layerData[i];
+                    registerEditEvents(geoJsonLayer);
+                    map.addLayer(geoJsonLayer);
+                }
+             } catch (e) {
+                 console.log("rendering failed:%o", e);
+             }
+         }
     }
 
     function reloadAfterEdit (tags) {
         exports.clear();
         load( tags, function (data) {
-	    loadMapData( data);
+            loadMapData( data);
             $('#tagsQuery').val(tags);
         });
     }
@@ -258,7 +256,7 @@ function TagMap(options) {
                 alert('mangler værdi for tag');
                 map.removeLayer(layer);
             } else {
-                $.ajax(conf.api, { 
+                $.ajax(conf.api, {
                     dataType: 'json',
                     method: 'POST',
                     data: {
@@ -294,8 +292,7 @@ function TagMap(options) {
             exports.clear();
             layerData = data;
             var i;
-	    loadMapData( layerData);
-
+            loadMapData( layerData);
             map.on('draw:created', function(e) {
                 var type = e.layerType, drawnLayer = e.layer;
                 map.addLayer(drawnLayer);
@@ -321,8 +318,8 @@ function TagMap(options) {
    $('#saveButton').on('click', function() {
        updateInfo(layer);
    });
- 
-    exports.remove = function() {
+
+   exports.remove = function() {
         if ($('#id').val() === "") {
            alert("id skal være udfyldt før at du får lov til at slette!");
            return;
