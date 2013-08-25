@@ -1,34 +1,44 @@
 function TagMap(conf) {
     var layers = [];
-    $.each(conf.baseMaps, function(a, b) {
-        layers.push(b);
-    });
-
-    function getTagStyle(tagsIn) {
-        //Splitting the tags by ";", which is used with multiple tags
-        var tags = tagsIn.split(";");
-
-        for (var t in conf.tagConfig) {
-            if($.inArray(conf.tagConfig[t].name, tags) != -1)
-            //if (tagsIn == conf.tagConfig[t].name) {
-                return conf.tagConfig[t].style;
-        }
-    }
-
-    function createMap() {
-        var map = new L.Map(conf.mapDiv, {
-            center: new L.LatLng(conf.lat, conf.lng),
-            zoom: conf.zoom, //15,
-            layers: layers
-        });
-        L.control.layers(conf.baseMaps, conf.overlayMaps).addTo(map);
-        return map;
-    }
-    var map = createMap();
-
     var exports = {};
     var layerData;
     var layer;
+
+    if (conf.baseMaps) {
+        $.each(conf.baseMaps, function(a, b) {
+            layers.push(b);
+        });
+    }
+
+    if (conf.overlayMaps) {
+        $.each(conf.overlayMaps, function (a, b) {
+            layers.push(b);
+        });
+    }
+
+    var map = new L.Map(conf.mapDiv, {
+        center: new L.LatLng(conf.lat, conf.lng),
+        zoom: conf.zoom,
+        layers: layers
+    });
+
+    if (conf.showLayerControls) {
+        L.control.layers(conf.baseMaps, conf.overlayMaps).addTo(map);
+    }
+
+    L.control.scale({imperial: false}).addTo(map);
+
+    function getTagStyle(tagsIn) {
+        var tags = [];
+        if (tagsIn) {
+           tags = tagsIn.split(";"); //";" is used to split multiple tags
+        }
+        for (var t in conf.tagConfig) {
+            if($.inArray(conf.tagConfig[t].name, tags) != -1) {
+                return conf.tagConfig[t].style;
+            }
+        }
+    }
 
     function load(tags, cb) {
         $.ajax( conf.api, {
@@ -42,29 +52,17 @@ function TagMap(conf) {
        });
     }
 
-    function info(layerData) {
-        $("#" + conf.infoDiv).html(layerData[conf.content]);
-    }
-    function overlay(layerData) {
-        $("#" + conf.infoDiv).html(layerData.name);
-    }
-
     exports.createTagSelector = function(){
         load([""], createSelectorWithTags);
     };
 
-    //Creating a select list, placing it in an element identified by
-    //config.TagSelectorDiv
     function createSelectorWithTags(data){
         data.splice(data.length-1,1);
         var referenceTags = [];
         referenceTags.push("");
         $.each(data, function(index, value){
-            //Splitting the tags by ";", which is used with multiple tags
             var tags = value.tags.split(";");
-            //Iterating through the tags for the data element
             $.each(tags, function(counter, item){
-                //If tag is not recorded, add it to the reference arr
                 if($.inArray(item, referenceTags) === -1){
                     referenceTags.push(item);
                 }
@@ -78,37 +76,47 @@ function TagMap(conf) {
         $("#" + conf.tagSelectorDiv).append(s);
     }
 
+    function layerFromData(layerData) {
+         var geoJsonLayer;
+         var geo = $.parseJSON(layerData.geometry);
+         if (geo.type == "Point") {
+             geoJsonLayer = L.geoJson(geo, {
+                 style: getTagStyle(layerData.tags),
+                 pointToLayer: pointToLayer
+             });
+         } else {
+             geoJsonLayer = L.geoJson(geo,
+                 {style: getTagStyle(layerData.tags)}
+             );
+        }
+        geoJsonLayer.layerData = layerData;
+        return geoJsonLayer;
+    }
+
+    function pointToLayer (feature, latlng) {
+        return L.circleMarker(latlng,
+            getTagStyle(layerData[i].tags));
+    }
+
     exports.show = function(tags) {
         var i;
         exports.clear();
 
-        function pointToLayer (feature, latlng) {
-            return L.circleMarker(latlng,
-               getTagStyle(layerData[i].tags));
-        }
-
         function registerEvents( geoJsonLayer ) {
-             geoJsonLayer.on("click", function(e) { info(this.layerData); });
-             geoJsonLayer.on("mouseover", function(e) { overlay(this.layerData); });
+            geoJsonLayer.on("click", function(e) {
+                $("#" + conf.infoDiv).html(this.layerData[conf.content]);
+            });
+
+            geoJsonLayer.on("mouseover", function(e) {
+                 $("#" + conf.infoDiv).html(this.layerData.name);
+             });
         }
 
         load(tags, function(data) {
             layerData = data;
-            for (i = 0; i < layerData.length - 1; i++) {
+            for (var i = 0; i < layerData.length - 1; i++) {
                 try {
-                    var geo = $.parseJSON(layerData[i].geometry);
-                    var geoJsonLayer;
-                    if (geo.type == "Point") {
-                        geoJsonLayer = L.geoJson(geo, {
-                            style: getTagStyle(layerData[i].tags),
-                            pointToLayer: pointToLayer
-                        });
-                    } else {
-                        geoJsonLayer = L.geoJson(geo,
-                                {style: getTagStyle(layerData[i].tags)}
-                        );
-                    }
-                    geoJsonLayer.layerData = layerData[i];
+                    var geoJsonLayer = layerFromData(layerData[i]);
                     registerEvents(geoJsonLayer);
                     map.addLayer(geoJsonLayer);
                 } catch (e) {
@@ -168,7 +176,6 @@ function TagMap(conf) {
         $('#content_en').val(layerData.content_en);
         $('#geometry').val(layerData.geometry);
         $('#tags').val(layerData.tags);
-        //$('#id').removeAttr("disabled");
         $('#name').removeAttr("disabled");
         $('#content_da').removeAttr("disabled");
         $('#content_en').removeAttr("disabled");
@@ -176,21 +183,15 @@ function TagMap(conf) {
         $('#remove').removeAttr("disabled");
     }
 
-    function registerEditEvents (geoJsonLayer) {
-        geoJsonLayer.on("click", function(ev) {
-            layer = geoJsonLayer;
-            editData(this.layerData);
-        });
-    }
-
     function loadMapData (layerData) {
         for (i = 0; i < layerData.length - 1; i++) {
             try {
                 if (layerData[i].geometry) {
-                    var geo = $.parseJSON(layerData[i].geometry);
-                    var geoJsonLayer = L.GeoJSON.geometryToLayer(geo);
-                    geoJsonLayer.layerData = layerData[i];
-                    registerEditEvents(geoJsonLayer);
+                    var geoJsonLayer = layerFromData(layerData[i]);
+                    geoJsonLayer.on("click", function(ev) {
+                        layer = geoJsonLayer;
+                        editData(this.layerData);
+                    });
                     map.addLayer(geoJsonLayer);
                 }
              } catch (e) {
@@ -275,6 +276,7 @@ function TagMap(conf) {
             $('#saveButton').attr("disabled", true);
         });
    };
+
    $('#saveButton').on('click', function() {
        updateInfo(layer);
    });
@@ -298,11 +300,9 @@ function TagMap(conf) {
             }
         }).done(function(data) {
             alert("slettede data");
-            //map.removeLayer(layer);
             reloadAfterEdit($('#tags').val());
         }).fail(function(data, b) {
           alert("sletning fejlede!");
-        //  console.log("delete failed:%o, %o", data, b);
           });
     };
 
