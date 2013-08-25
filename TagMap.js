@@ -27,6 +27,9 @@ function TagMap(conf) {
 
     L.control.scale({imperial: false}).addTo(map);
 
+    var tagGroup = new L.FeatureGroup();
+    map.addLayer(tagGroup);
+
     function getTagStyle(tagsIn) {
         var tags = [];
         if (tagsIn) {
@@ -104,7 +107,7 @@ function TagMap(conf) {
         });
    };
 
-   exports.clear = function() {
+    exports.clear = function() {
         map.eachLayer(function(layer) {
             if (layer.layerData) {
                 map.removeLayer(layer);
@@ -143,7 +146,8 @@ function TagMap(conf) {
 
         map.on('draw:created', function(e) {
             layer = e.layer;
-            map.addLayer(layer);
+           // map.addLayer(layer);
+            tagGroup.addLayer(layer);
             create(layer, function cb(data) {
                 layer.layerData = data[0];
                 activeLayer = layer;
@@ -156,74 +160,87 @@ function TagMap(conf) {
    };
 
    function editData(layerData) {
-        $('#id').val(layerData.id);
-        $('#name').val(layerData.name);
-        $('#content_da').val(layerData.content_da);
-        $('#content_en').val(layerData.content_en);
-        $('#geometry').val(layerData.geometry);
-        $('#tags').val(layerData.tags);
-        $('#name').removeAttr("disabled");
-        $('#content_da').removeAttr("disabled");
-        $('#content_en').removeAttr("disabled");
-        $('#saveButton').removeAttr("disabled");
-        $('#remove').removeAttr("disabled");
-    }
+       $('#id').val(layerData.id);
+       $('#name').val(layerData.name);
+       $('#content_da').val(layerData.content_da);
+       $('#content_en').val(layerData.content_en);
+       $('#geometry').val(layerData.geometry);
+       $('#tags').val(layerData.tags);
+       $('#name').removeAttr("disabled");
+       $('#content_da').removeAttr("disabled");
+       $('#content_en').removeAttr("disabled");
+       $('#saveButton').removeAttr("disabled");
+       $('#remove').removeAttr("disabled");
+   }
 
-    function layerFromData(layerData) {
-        var layer;
-        var geo = $.parseJSON(layerData.geometry);
-
-        function pointToLayer (feature, latlng) {
-             return L.circleMarker(latlng,
-                getTagStyle(layerData.tags));
-        }
-
-        if (geo.type == "Point") {
-             layer = L.geoJson(geo, {
-                 style: getTagStyle(layerData.tags),
-                 pointToLayer: pointToLayer
-             });
-         } else {
-             layer = L.geoJson(geo,
-                 {style: getTagStyle(layerData.tags)}
-             );
-        }
-        layer.layerData = layerData;
-        return layer;
+   function geoJsonLayerFromTagData(layerData) {
+       var geoJson = $.parseJSON(layerData.geometry);
+       var layer = new  L.geoJson( geoJson,  {
+            style: getTagStyle(layerData.tags),
+            pointToLayer: function ( feature, latlng) {
+                 return L.circleMarker(latlng,
+                     getTagStyle(layerData.tags)
+                     );
+            }
+       });
+       layer.layerData = layerData;
+       layer.type = geoJson.type;
+       return layer;
     }
 
     function render (layerData, registerEventsCallback) {
         for (i = 0; i < layerData.length - 1; i++) {
-            var layer = layerFromData(layerData[i]);
+            var layer = geoJsonLayerFromTagData(layerData[i]);
             registerEventsCallback(layer);
-            map.addLayer(layer);
+            tagGroup.addLayer(layer);
          }
 
-        //TODO:#22
+        fitTagGroupInBounds();
+    }
+
+    function fitTagGroupInBounds () {
+        var latMin = 1000, latMax=-1000, lngMin = 1000, lngMax = -1000;
+        tagGroup.eachLayer( function (layer) {
+            var geometry = $.parseJSON(layer.layerData.geometry);
+            function grow( coords ) {
+               if (latMin > coords[0]) latMin = coords[0];
+               if (latMax < coords[0]) latMax = coords[0];
+               if (lngMin > coords[1]) lngMin = coords[1];
+               if (lngMax < coords[1]) lngMax = coords[1];
+            }
+            if (layer.type == "Point") {
+                grow( geometry.coordinates );
+            } else {
+                $.each(geometry.coordinates[0], function (idx, coords) {
+                   grow(coords);
+               });
+            }
+         });
+         map.fitBounds([ [lngMin,latMin], [lngMax, latMax] ] );
     }
 
     function create(layer, cb) {
-            $('#id').val("");
-            $('#name').val("");
-            $('#content_da').val("");
-            if ($('#tags').val() === "") {
-                alert('mangler værdi for tag');
-                map.removeLayer(layer);
-            } else {
-                $.ajax(conf.api, {
-                    dataType: 'json',
-                    method: 'POST',
-                    data: {
-                        type: "createmapdata",
-                        name: $('#name').val(),
-                        content_da: $('#content_da').val(),
-                        geometry: JSON.stringify(layer.toGeoJSON()),
-                        tags: $('#tags').val()
-                    }
-                }).done(function(data) {
-                    cb(data);
-                });
-            }
+        $('#id').val("");
+        $('#name').val("");
+        $('#content_da').val("");
+        if ($('#tags').val() === "") {
+            alert('mangler værdi for tag');
+            tagGroup.removeLayer(layer);
+        } else {
+            $.ajax(conf.api, {
+                dataType: 'json',
+                method: 'POST',
+                data: {
+                    type: "createmapdata",
+                    name: $('#name').val(),
+                    content_da: $('#content_da').val(),
+                    geometry: JSON.stringify(layer.toGeoJSON()),
+                    tags: $('#tags').val()
+                }
+           }).done(function(data) {
+               cb(data);
+           });
+       }
    }
 
    $('#saveButton').on('click', function() {
@@ -274,7 +291,7 @@ function TagMap(conf) {
             }
         }).done(function(data) {
             alert("slettede data");
-            exports.edit($('#tags').val(), true);
+            exports.edit($('#tags').val(), false);
         }).fail(function(data, b) {
           alert("sletning fejlede!");
           });
