@@ -1,8 +1,7 @@
 function TagMap(conf) {
     var layers = [];
     var exports = {};
-    var layerData;
-    var layer;
+    var activeLayer;
 
     if (conf.baseMaps) {
         $.each(conf.baseMaps, function(a, b) {
@@ -76,57 +75,36 @@ function TagMap(conf) {
         $("#" + conf.tagSelectorDiv).append(s);
     }
 
-    function layerFromData(layerData) {
-         var geoJsonLayer;
-         var geo = $.parseJSON(layerData.geometry);
-         if (geo.type == "Point") {
-             geoJsonLayer = L.geoJson(geo, {
-                 style: getTagStyle(layerData.tags),
-                 pointToLayer: pointToLayer
-             });
-         } else {
-             geoJsonLayer = L.geoJson(geo,
-                 {style: getTagStyle(layerData.tags)}
-             );
-        }
-        geoJsonLayer.layerData = layerData;
-        return geoJsonLayer;
-    }
-
-    function pointToLayer (feature, latlng) {
-        return L.circleMarker(latlng,
-            getTagStyle(layerData[i].tags));
-    }
-
     exports.show = function(tags) {
-        var i;
         exports.clear();
-
-        function registerEvents( geoJsonLayer ) {
-            geoJsonLayer.on("click", function(e) {
-                $("#" + conf.infoDiv).html(this.layerData[conf.content]);
-            });
-
-            geoJsonLayer.on("mouseover", function(e) {
-                 $("#" + conf.infoDiv).html(this.layerData.name);
-             });
-        }
-
         load(tags, function(data) {
-            layerData = data;
-            for (var i = 0; i < layerData.length - 1; i++) {
-                try {
-                    var geoJsonLayer = layerFromData(layerData[i]);
-                    registerEvents(geoJsonLayer);
-                    map.addLayer(geoJsonLayer);
-                } catch (e) {
-                    console.log("error:%o", e);
-                }
-            }
+            render( data, function (layer) {
+                layer.on("click", function(e) {
+                    $("#" + conf.infoDiv).html(layer.layerData[conf.content]);
+                });
+                layer.on("mouseover", function(e) {
+                    $("#" + conf.infoDiv).html(layer.layerData.name);
+                });
+            });
         });
     };
 
-    exports.clear = function() {
+    exports.edit = function(tags, reload) {
+        if (!reload) {
+            disableSave();
+            enableEditing();
+        }
+        load(tags, function(data) {
+            render(data, function (layer) {
+                layer.on("click", function (ev) {
+                    activeLayer = layer;
+                    editData(layer.layerData);
+                });
+            });
+        });
+   };
+
+   exports.clear = function() {
         map.eachLayer(function(layer) {
             if (layer.layerData) {
                 map.removeLayer(layer);
@@ -140,36 +118,44 @@ function TagMap(conf) {
         $('#content_da').attr("disabled", true);
         $("#content_en").val("");
         $('#content_en').attr("disabled", true);
-    };
+   };
 
-    function updateInfo(layer) {
-        if ($('#tags').val() === "") {
-            alert('mangler værdi for tag');
-            return;
+   function disableSave () {
+       $('#id').attr("disabled", true);
+       $('#name').attr("disabled", true);
+       $('#content_da').attr("disabled", true);
+       $('#content_en').attr("disabled", true);
+       $('#remove').attr("disabled", true);
+       $('#saveButton').attr("disabled", true);
+   }
+
+   function enableEditing () {
+       if (!map.editStarted) {
+            var drawControl = new L.Control.Draw({
+                draw: {
+                    circle: false
+                },
+                edit: false
+            });
+            map.addControl(drawControl);
+            map.editStarted = true;
         }
-        $.ajax(conf.api, {
-            method: 'POST',
-            dataType: 'json',
-            data: {
-                id: $("#id").val(),
-                type: "createmapdata",
-                name: $('#name').val(),
-                content_da: $('#content_da').val(),
-                content_en: $('#content_en').val(),
-                geometry: JSON.stringify(layer.toGeoJSON()),
-                tags: $('#tags').val()
-            }
-        }).done(function(data) {
-            layer.layerData = data[0];
-            alert('gemte data');
-            reloadAfterEdit( $('#tags').val());
-            editData(layer.layerData);
-        }).fail(function (data){
-            alert('gemning fejlede!');
-        });
-    }
 
-    function editData(layerData) {
+        map.on('draw:created', function(e) {
+            layer = e.layer;
+            map.addLayer(layer);
+            create(layer, function cb(data) {
+                layer.layerData = data[0];
+                activeLayer = layer;
+                layer.on("click", function(e) {
+                    editData(layer.layerData);
+                });
+                editData(layer.layerData);
+            });
+        });
+   };
+
+   function editData(layerData) {
         $('#id').val(layerData.id);
         $('#name').val(layerData.name);
         $('#content_da').val(layerData.content_da);
@@ -183,33 +169,40 @@ function TagMap(conf) {
         $('#remove').removeAttr("disabled");
     }
 
-    function loadMapData (layerData) {
+    function layerFromData(layerData) {
+        var layer;
+        var geo = $.parseJSON(layerData.geometry);
+
+        function pointToLayer (feature, latlng) {
+             return L.circleMarker(latlng,
+                getTagStyle(layerData.tags));
+        }
+
+        if (geo.type == "Point") {
+             layer = L.geoJson(geo, {
+                 style: getTagStyle(layerData.tags),
+                 pointToLayer: pointToLayer
+             });
+         } else {
+             layer = L.geoJson(geo,
+                 {style: getTagStyle(layerData.tags)}
+             );
+        }
+        layer.layerData = layerData;
+        return layer;
+    }
+
+    function render (layerData, registerEventsCallback) {
         for (i = 0; i < layerData.length - 1; i++) {
-            try {
-                if (layerData[i].geometry) {
-                    var geoJsonLayer = layerFromData(layerData[i]);
-                    geoJsonLayer.on("click", function(ev) {
-                        layer = geoJsonLayer;
-                        editData(this.layerData);
-                    });
-                    map.addLayer(geoJsonLayer);
-                }
-             } catch (e) {
-                 console.log("rendering failed:%o", e);
-             }
+            var layer = layerFromData(layerData[i]);
+            registerEventsCallback(layer);
+            map.addLayer(layer);
          }
+
+        //TODO:#22
     }
 
-    function reloadAfterEdit (tags) {
-        exports.clear();
-        load( tags, function (data) {
-            loadMapData( data);
-            $('#tagsQuery').val(tags);
-        });
-    }
-
-    exports.edit = function(tags) {
-        function create(layer, cb) {
+    function create(layer, cb) {
             $('#id').val("");
             $('#name').val("");
             $('#content_da').val("");
@@ -231,63 +224,44 @@ function TagMap(conf) {
                     cb(data);
                 });
             }
-        }
-        function updateLayer(layer) {
-            layer = layer;
-            layerData = layer.layerData;
-            updateInfo(layer);
-        }
-
-        if (!map.editStarted) {
-            var drawControl = new L.Control.Draw({
-                draw: {
-                    circle: false
-                },
-                edit: false
-            });
-            map.addControl(drawControl);
-            map.editStarted = true;
-        }
-
-        load(tags, function(data) {
-            exports.clear();
-            layerData = data;
-            var i;
-            loadMapData( layerData);
-            map.on('draw:created', function(e) {
-                var type = e.layerType, drawnLayer = e.layer;
-                map.addLayer(drawnLayer);
-                create(drawnLayer, function cb(data) {
-                    drawnLayer.layerData = data[0];
-                    layer = drawnLayer;
-                    editData(drawnLayer.layerData);
-                    drawnLayer.on("click", function(e) {
-                        layer = drawnLayer;
-                        editData(drawnLayer.layerData);
-                    });
-                });
-            });
-
-            $('#id').attr("disabled", true);
-            $('#name').attr("disabled", true);
-            $('#content_da').attr("disabled", true);
-            $('#content_en').attr("disabled", true);
-            $('#remove').attr("disabled", true);
-            $('#saveButton').attr("disabled", true);
-        });
-   };
+   }
 
    $('#saveButton').on('click', function() {
-       updateInfo(layer);
+       updateInfo();
    });
 
+   function updateInfo() {
+        if ($('#tags').val() === "") {
+            alert('mangler værdi for tag');
+            return;
+        }
+        $.ajax(conf.api, {
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                id: $("#id").val(),
+                type: "createmapdata",
+                name: $('#name').val(),
+                content_da: $('#content_da').val(),
+                content_en: $('#content_en').val(),
+                geometry: JSON.stringify(activeLayer.toGeoJSON()),
+                tags: $('#tags').val()
+            }
+        }).done(function(data) {
+            activeLayer.layerData = data[0];
+            alert('gemte data');
+            exports.edit( $('#tags').val(), true);
+        }).fail(function (data){
+            alert('gemning fejlede!');
+        });
+   }
+
    exports.remove = function() {
-        if ($('#id').val() === "") {
+       if ($('#id').val() === "") {
            alert("id skal være udfyldt før at du får lov til at slette!");
            return;
         }
         $.ajax(conf.api, {
-           // dataType: 'json', //not json returned from server currently
             method: 'POST',
             data: {
                 id: $("#id").val(),
@@ -295,12 +269,12 @@ function TagMap(conf) {
                 name: $('#name').val(),
                 content_da: $('#content_da').val(),
                 content_en: $('#content_en').val(),
-                geometry: JSON.stringify(layer.toGeoJSON()),
+                geometry: JSON.stringify(activeLayer.toGeoJSON()),
                 tags: $('#tags').val()
             }
         }).done(function(data) {
             alert("slettede data");
-            reloadAfterEdit($('#tags').val());
+            exports.edit($('#tags').val(), true);
         }).fail(function(data, b) {
           alert("sletning fejlede!");
           });
