@@ -83,13 +83,42 @@ function TagMap(conf) {
         load(tags, function(data) {
             render( data, function (layer) {
                 layer.on("click", function(e) {
+                    highLight(layer.layerData.id);
                     $("#" + conf.infoDiv).html(layer.layerData[conf.content]);
+                    enableTagLinks(tags);
                 });
                 layer.on("mouseover", function(e) {
                     $("#" + conf.infoDiv).html(layer.layerData.name);
                 });
             });
         });
+    };
+
+    function enableTagLinks (tags) {
+        var tagLinks = $("#" + conf.infoDiv).find('a');
+        $.each(tagLinks , function (idx, lnk) {
+            $(lnk).on("click", function () {
+                 var id = lnk.getAttribute('data-tag');
+                 highLight(id);
+            });
+        });
+    };
+
+    function highLight (tagId) {
+        if (activeLayer) {
+            activeLayer.setStyle ( getTagStyle(activeLayer.layerData.tags));
+        }
+
+        tagGroup.eachLayer( function (layer) {
+            if (layer.layerData.id == tagId) {
+               activeLayer = layer;
+               layer.setStyle( {
+                   weight: 30,
+                   color: 'blue',
+                   fillOpacity: '0.5'
+               });
+            }
+         });
     };
 
     exports.edit = function(tags, reload) {
@@ -107,7 +136,7 @@ function TagMap(conf) {
         });
    };
 
-    exports.clear = function() {
+   exports.clear = function() {
         map.eachLayer(function(layer) {
             if (layer.layerData) {
                 map.removeLayer(layer);
@@ -211,9 +240,13 @@ function TagMap(conf) {
             if (layer.type == "Point") {
                 grow( geometry.coordinates );
             } else {
+                try {
                 $.each(geometry.coordinates[0], function (idx, coords) {
                    grow(coords);
                });
+                }catch (Exception){
+                  console.log("failed on:%o", geometry);
+                }
             }
          });
          map.fitBounds([ [lngMin,latMin], [lngMax, latMax] ] );
