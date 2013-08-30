@@ -87,9 +87,11 @@ function TagMap(conf) {
                     $("#" + conf.infoDiv).html(layer.layerData[conf.content]);
                     enableTagLinks(tags);
                 });
-                layer.on("mouseover", function(e) {
-                    $("#" + conf.infoDiv).html(layer.layerData.name);
-                });
+                if(conf.enableMouseOver){
+                    layer.on("mouseover", function(e) {
+                        $("#" + conf.infoDiv).html(layer.layerData.name);
+                    });
+                }
             });
         });
     };
