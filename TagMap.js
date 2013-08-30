@@ -87,7 +87,7 @@ function TagMap(conf) {
                     $("#" + conf.infoDiv).html(layer.layerData[conf.content]);
                     enableTagLinks(tags);
                 });
-                if(conf.enableMouseOver){
+                if(conf.enableMouseover){
                     layer.on("mouseover", function(e) {
                         $("#" + conf.infoDiv).html(layer.layerData.name);
                     });
