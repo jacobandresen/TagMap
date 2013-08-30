@@ -45,7 +45,7 @@ function TagMap(conf) {
     function load(tags, cb) {
         $.ajax( conf.api, {
             method: 'POST',
-            dataType: 'json',
+            dataType: 'jsonp',
             data: {
                 type: "mapdata",
                 tags: tags
@@ -261,7 +261,7 @@ function TagMap(conf) {
             tagGroup.removeLayer(layer);
         } else {
             $.ajax(conf.api, {
-                dataType: 'json',
+                dataType: 'jsonp',
                 method: 'POST',
                 data: {
                     type: "createmapdata",
@@ -287,7 +287,7 @@ function TagMap(conf) {
         }
         $.ajax(conf.api, {
             method: 'POST',
-            dataType: 'json',
+            dataType: 'jsonp',
             data: {
                 id: $("#id").val(),
                 type: "createmapdata",
