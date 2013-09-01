@@ -187,15 +187,18 @@ function TagMap(conf) {
         $('#id').attr("disabled", true);
         $("#name").val("");
         $('#name').attr("disabled", true);
-        $("#content_da").val("");
+        $('#header_en').attr("disabled", true);   
+        $('#header_en').val("");
+        $('#content_da').val("");
         $('#content_da').attr("disabled", true);
-        $("#content_en").val("");
         $('#content_en').attr("disabled", true);
+        $('#content_en').val("");
    };
 
    function disableSave () {
        $('#id').attr("disabled", true);
        $('#name').attr("disabled", true);
+       $('#header_en').attr("disabled", true);
        $('#content_da').attr("disabled", true);
        $('#content_en').attr("disabled", true);
        $('#remove').attr("disabled", true);
@@ -231,11 +234,13 @@ function TagMap(conf) {
    function editData(layerData) {
        $('#id').val(layerData.id);
        $('#name').val(layerData.name);
+       $('#header_en').val(layerData.header_en);
        $('#content_da').val(layerData.content_da);
        $('#content_en').val(layerData.content_en);
        $('#geometry').val(layerData.geometry);
        $('#tags').val(layerData.tags);
        $('#name').removeAttr("disabled");
+       $('#header_en').removeAttr("disabled");
        $('#content_da').removeAttr("disabled");
        $('#content_en').removeAttr("disabled");
        $('#saveButton').removeAttr("disabled");
@@ -243,9 +248,6 @@ function TagMap(conf) {
    }
 
    function geoJsonLayerFromTagData(layerData) {
-
-  console.log("style:%o", getTagStyle(layerData.tags));
-
        var geoJson = $.parseJSON(layerData.geometry);
        var layer = new  L.geoJson( geoJson,  {
             style: getTagStyle(layerData.tags),
@@ -261,7 +263,6 @@ function TagMap(conf) {
     }
 
     function render (layerData, registerEventsCallback, selectedId) {
-        //tgGroup.clearLayers();
         exports.clear();
         for (i = 0; i < layerData.length - 1; i++) {
             var layer = geoJsonLayerFromTagData(layerData[i]);
@@ -341,6 +342,7 @@ function TagMap(conf) {
                 id: $("#id").val(),
                 type: "createmapdata",
                 name: $('#name').val(),
+                header_en: $('#header_en').val(),
                 content_da: $('#content_da').val(),
                 content_en: $('#content_en').val(),
                 //geometry: stringify(activeLayer.toGeoJSON()),
@@ -367,6 +369,7 @@ function TagMap(conf) {
                 id: $("#id").val(),
                 type: "deletemapdata",
                 name: $('#name').val(),
+                header_en: $('#header_en').val(),
                 content_da: $('#content_da').val(),
                 content_en: $('#content_en').val(),
                 geometry: JSON.stringify(activeLayer.toGeoJSON()),
