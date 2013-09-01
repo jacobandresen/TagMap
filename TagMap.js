@@ -1,3 +1,14 @@
+var TagIcon = L.Icon.extend({
+    options: {
+       shadowUrl: 'images/leaf-shadow.png',
+       iconSize: [38,95],
+       shadowSize: [50,64],
+       iconAnchor: [22, 94],
+       shadowAnchor: [4,62],
+       popupAnchor: [-3, -76] 
+    }
+});
+
 function TagMap(conf) {
     var layers = [];
     var exports = {};
@@ -27,18 +38,6 @@ function TagMap(conf) {
         L.control.layers(conf.baseMaps, conf.overlayMaps).addTo(map);
     }
 
-    var eyeStyle = conf.eyeStyle || {
-            name: "aktiv",
-            style: {
-                radius: 8,
-                fillColor: "green",
-                color: "green",
-                weight: 5,
-                opacity: 1,
-                fillOpacity: 0.8
-                }
-    } ;
-
     L.control.scale({imperial: false}).addTo(map);
 
     var tagGroup = new L.FeatureGroup();
@@ -56,6 +55,17 @@ function TagMap(conf) {
                 return conf.tagConfig[t].style;
             }
         }
+    }
+
+    function getIcon (tagsIn) {
+         var style = getTagStyle(tagsIn);
+         var iconUrl;
+         if (style == undefined || style.iconUrl == undefined || style.iconUrl == "") {
+            iconUrl = "images/leaf-green.png";
+         } else {
+            iconUrl = style.iconUrl;
+         }  
+         return new TagIcon({iconUrl:iconUrl }); 
     }
 
     function load(tags, cb) {
@@ -132,9 +142,8 @@ function TagMap(conf) {
                var coords;
                if ( geometry.type=="Point"){ 
                    coords = geometry.coordinates;
-                   eye =  L.marker([coords[1], coords[0]], eyeStyle);
+                   eye =  L.marker([coords[1], coords[0]], {icon: getIcon(layer.layerData.tags)} );
                    markerGroup.addLayer(eye);
-
                } /*else {
                    var lat = 0.0,lng = 0.0,cnt = 0;
                     $.each( geometry.coordinates[0], function (idx, coords) {
@@ -234,6 +243,9 @@ function TagMap(conf) {
    }
 
    function geoJsonLayerFromTagData(layerData) {
+
+  console.log("style:%o", getTagStyle(layerData.tags));
+
        var geoJson = $.parseJSON(layerData.geometry);
        var layer = new  L.geoJson( geoJson,  {
             style: getTagStyle(layerData.tags),
