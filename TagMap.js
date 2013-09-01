@@ -78,7 +78,7 @@ function TagMap(conf) {
         $("#" + conf.tagSelectorDiv).append(s);
     }
 
-    exports.show = function(tags) {
+    exports.show = function(tags, selectedId) {
         exports.clear();
         load(tags, function(data) {
             render( data, function (layer) {
@@ -92,7 +92,7 @@ function TagMap(conf) {
                         $("#" + conf.infoDiv).html(layer.layerData.name);
                     });
                 }
-            });
+            }, selectedId);
         });
     };
 
@@ -100,14 +100,16 @@ function TagMap(conf) {
         var tagLinks = $("#" + conf.infoDiv).find('a');
         $.each(tagLinks , function (idx, lnk) {
             $(lnk).on("click", function () {
-                 var id = lnk.getAttribute('data-tag');
-                 highLight(id);
+                 var linkTags = lnk.getAttribute('data-tags')||tags;
+                 var id = lnk.getAttribute('data-id');
+                 exports.show( linkTags, id ) ;
             });
         });
     };
 
     function highLight (tagId) {
-        if (activeLayer) {
+
+       if (activeLayer) {
             activeLayer.setStyle ( getTagStyle(activeLayer.layerData.tags));
         }
 
@@ -119,8 +121,10 @@ function TagMap(conf) {
                    color: 'blue',
                    fillOpacity: '0.5'
                });
+            } else {
+               layer.setStyle ( getTagStyle(layer.layerData.tags) );
             }
-         });
+         }); 
     };
 
     exports.edit = function(tags, reload) {
@@ -219,13 +223,19 @@ function TagMap(conf) {
        return layer;
     }
 
-    function render (layerData, registerEventsCallback) {
+    function render (layerData, registerEventsCallback, selectedId) {
+        //tgGroup.clearLayers();
+        exports.clear();
         for (i = 0; i < layerData.length - 1; i++) {
             var layer = geoJsonLayerFromTagData(layerData[i]);
             registerEventsCallback(layer);
             tagGroup.addLayer(layer);
          }
-        fitTagGroupInBounds();
+
+       fitTagGroupInBounds();
+       if (selectedId) {
+           highLight(selectedId);
+       }
     }
 
     function fitTagGroupInBounds () {
