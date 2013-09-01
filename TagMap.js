@@ -3,6 +3,8 @@ function TagMap(conf) {
     var exports = {};
     var activeLayer;
 
+    var eye;
+
     if (conf.baseMaps) {
         $.each(conf.baseMaps, function(a, b) {
             layers.push(b);
@@ -25,10 +27,24 @@ function TagMap(conf) {
         L.control.layers(conf.baseMaps, conf.overlayMaps).addTo(map);
     }
 
+    var eyeStyle = conf.eyeStyle || {
+            name: "aktiv",
+            style: {
+                radius: 8,
+                fillColor: "green",
+                color: "green",
+                weight: 5,
+                opacity: 1,
+                fillOpacity: 0.8
+                }
+    } ;
+
     L.control.scale({imperial: false}).addTo(map);
 
     var tagGroup = new L.FeatureGroup();
     map.addLayer(tagGroup);
+    var markerGroup = new L.FeatureGroup();
+    map.addLayer(markerGroup);
 
     function getTagStyle(tagsIn) {
         var tags = [];
@@ -108,22 +124,31 @@ function TagMap(conf) {
     };
 
     function highLight (tagId) {
-
-       if (activeLayer) {
-            activeLayer.setStyle ( getTagStyle(activeLayer.layerData.tags));
-        }
-
+        markerGroup.clearLayers();
         tagGroup.eachLayer( function (layer) {
             if (layer.layerData.id == tagId) {
                activeLayer = layer;
-               layer.setStyle( {
-                   weight: 30,
-                   color: 'blue',
-                   fillOpacity: '0.5'
-               });
-            } else {
-               layer.setStyle ( getTagStyle(layer.layerData.tags) );
-            }
+               var geometry = $.parseJSON(layer.layerData.geometry);
+               var coords;
+               if ( geometry.type=="Point"){ 
+                   coords = geometry.coordinates;
+                   eye =  L.marker([coords[1], coords[0]], eyeStyle);
+                   markerGroup.addLayer(eye);
+
+               } /*else {
+                   var lat = 0.0,lng = 0.0,cnt = 0;
+                    $.each( geometry.coordinates[0], function (idx, coords) {
+                        lat = lat + coords[0];
+                        lng = lng  + coords[1];
+                        cnt++;
+                    })
+                   lat = lat / cnt;
+                   lng = lng / cnt;
+                   coords = [ lat, lng];
+                   eye =  L.marker([coords[1], coords[0]]);
+                   markerGroup.addLayer(eye);
+               } */
+            } 
          }); 
     };
 
@@ -143,6 +168,7 @@ function TagMap(conf) {
    };
 
    exports.clear = function() {
+        if (eye) map.removeLayer(eye);
         map.eachLayer(function(layer) {
             if (layer.layerData) {
                 map.removeLayer(layer);
@@ -181,7 +207,6 @@ function TagMap(conf) {
 
         map.on('draw:created', function(e) {
             layer = e.layer;
-           // map.addLayer(layer);
             tagGroup.addLayer(layer);
             create(layer, function cb(data) {
                 layer.layerData = data[0];
