@@ -225,11 +225,11 @@ function TagMap(conf) {
             registerEventsCallback(layer);
             tagGroup.addLayer(layer);
          }
-
         fitTagGroupInBounds();
     }
 
     function fitTagGroupInBounds () {
+       //TODO: create default bound around DK
         var latMin = 1000, latMax=-1000, lngMin = 1000, lngMax = -1000;
         tagGroup.eachLayer( function (layer) {
             var geometry = $.parseJSON(layer.layerData.geometry);
@@ -296,7 +296,8 @@ function TagMap(conf) {
                 name: $('#name').val(),
                 content_da: $('#content_da').val(),
                 content_en: $('#content_en').val(),
-                geometry: JSON.stringify(activeLayer.toGeoJSON()),
+                //geometry: stringify(activeLayer.toGeoJSON()),
+                geometry: activeLayer.layerData.geometry,
                 tags: $('#tags').val()
             }
         }).done(function(data) {
