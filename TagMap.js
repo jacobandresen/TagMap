@@ -110,12 +110,16 @@ function TagMap(conf) {
             render( data, function (layer) {
                 layer.on("click", function(e) {
                     highLight(layer.layerData.id);
-                    $("#" + conf.infoDiv).html(layer.layerData[conf.content]);
+                    $("#" + conf.infoDiv).html(layer.layerData["content_"+conf.language]);
                     enableTagLinks(tags);
                 });
                 if(conf.enableMouseover){
                     layer.on("mouseover", function(e) {
-                        $("#" + conf.infoDiv).html(layer.layerData.name);
+                        if (conf.language == "da") {
+                            $("#" + conf.infoDiv).html(layer.layerData.name);
+                        } else {
+                            $("#" + conf.infoDiv).html(layer.layerData.header_en);
+                        }
                     });
                 }
             }, selectedId);

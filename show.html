@@ -36,13 +36,13 @@
     <script type="text/javascript">
     
     var tagmap = new TagMap({
-        api: "api.php", //PolleAPI
-        content: "content_da",
+        api: "/1/index.php",
+        language: "da",
         mapDiv: 'map',
         infoDiv: 'info',
         tagSelectorDiv: 'divs',
         showLayerControls: true,
-        enableMouseover: false;
+        enableMouseover: false,
         baseMaps: {
            /* "Historisk atlas": new L.TileLayer('http://tile.historiskatlas.dk/54/{z}/{x}/{y}.jpg'),
             "OSM": new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),*/
@@ -60,7 +60,8 @@
                 color: "#ff0000",
                 weight: 5,
                 opacity: 1,
-                fillOpacity: 0.8
+                fillOpacity: 0.8,
+                iconUrl: "images/leaf-green.png"
                 }
         },
         {
@@ -71,7 +72,8 @@
                 color: "green",
                 weight: 5,
                 opacity: 1,
-                fillOpacity: 0.8
+                fillOpacity: 0.8,
+                iconUrl: "images/leaf-red.png"
                 }
         },
         {
@@ -82,7 +84,8 @@
                 color: "blue",
                 weight: 5,
                 opacity: 1,
-                fillOpacity: 0.8
+                fillOpacity: 0.8,
+                iconUrl: "images/leaf-orange.png"
                 }
         },        
         {
