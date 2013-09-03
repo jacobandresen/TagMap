@@ -69,7 +69,7 @@ function TagMap(conf) {
     }
 
     function load(tags, cb, selectType) {
-        var st = selectType || 'AND'
+        var st = selectType || 'AND';
         $.ajax( conf.api, {
             method: 'POST',
             dataType: 'jsonp',
