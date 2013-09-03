@@ -106,7 +106,7 @@ function TagMap(conf) {
         $("#" + conf.tagSelectorDiv).append(s);
     }
 
-    exports.show = function(tags, selectedId) {
+    exports.show = function(tags, selectedId, selecttype) {
         exports.clear();
         load(tags, function(data) {
             render( data, function (layer) {
@@ -125,7 +125,7 @@ function TagMap(conf) {
                     });
                 }
             }, selectedId);
-        });
+        },selecttype);
     };
 
     function enableTagLinks (tags) {
