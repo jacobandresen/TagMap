@@ -68,13 +68,15 @@ function TagMap(conf) {
          return new TagIcon({iconUrl:iconUrl }); 
     }
 
-    function load(tags, cb) {
+    function load(tags, cb, selectType) {
+        var st = selectType || 'AND'
         $.ajax( conf.api, {
             method: 'POST',
             dataType: 'jsonp',
             data: {
                 type: "mapdata",
-                tags: tags
+                tags: tags,
+                selecttype: st
              },
             success: cb
        });
