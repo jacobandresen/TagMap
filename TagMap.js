@@ -5,7 +5,7 @@ var TagIcon = L.Icon.extend({
        shadowSize: [50,64],
        iconAnchor: [22, 94],
        shadowAnchor: [4,62],
-       popupAnchor: [-3, -76] 
+       popupAnchor: [-3, -76]
     }
 });
 
@@ -205,6 +205,7 @@ function TagMap(conf) {
    };
 
    exports.clear = function() {
+        tagGroup.clearLayers();
         markerGroup.clearLayers();
         map.eachLayer(function(layer) {
             if (layer.layerData) {
@@ -305,10 +306,8 @@ function TagMap(conf) {
     }
 
     function fitTagGroupInBounds () {
-       //TODO: create default bound around DK
         var latMin = 1000, latMax=-1000, lngMin = 1000, lngMax = -1000;
         tagGroup.eachLayer( function (layer) {
-            console.log("[%o,%o], [%o,%o]", lngMin, latMin, lngMax, latMax);
             var geometry = $.parseJSON(layer.layerData.geometry);
             function grow( coords ) {
                if (latMin > coords[0]) latMin = coords[0];
@@ -328,8 +327,24 @@ function TagMap(conf) {
                 }
             }
          });
-         map.fitBounds([ [lngMin,latMin], [lngMax, latMax] ] );
+
+         var myBounds = new L.LatLngBounds( [ [lngMax, latMax], [lngMin, latMin]]);
+         fitBounds(myBounds);
     }
+
+    function fitBounds(bounds, paddingTopLeft, paddingBottomRight) { // (LatLngBounds || ILayer[, Point, Point])
+       bounds = bounds.getBounds ? bounds.getBounds() : L.latLngBounds(bounds);
+       paddingTopLeft = L.point(paddingTopLeft || [0, 0]);
+       paddingBottomRight = L.point(paddingBottomRight || paddingTopLeft);
+       var zoom = map.getBoundsZoom(bounds, false, paddingTopLeft.add(paddingBottomRight)),
+           paddingOffset = paddingBottomRight.subtract(paddingTopLeft).divideBy(2),
+           swPoint = map.project(bounds.getSouthWest(), zoom),
+           nePoint = map.project(bounds.getNorthEast(), zoom),
+           center = map.unproject(swPoint.add(nePoint).divideBy(2).add(paddingOffset), zoom);
+       map.panTo(center);
+       map.setZoom(zoom);
+    }
+
 
     function create(layer, cb) {
         $('#id').val("");
@@ -354,6 +369,7 @@ function TagMap(conf) {
            });
        }
    }
+
 
    $('#saveButton').on('click', function() {
        updateInfo();
