@@ -57,17 +57,6 @@ function TagMap(conf) {
         }
     }
 
-    function getIcon (tagsIn) {
-         var style = getTagStyle(tagsIn);
-         var iconUrl;
-         if (style == undefined || style.iconUrl == undefined || style.iconUrl == "") {
-            iconUrl = "images/leaf-green.png";
-         } else {
-            iconUrl = style.iconUrl;
-         }  
-         return new TagIcon({iconUrl:iconUrl }); 
-    }
-
     function load(tags, cb, selectType) {
         var st = selectType || 'AND';
         $.ajax( conf.api, {
@@ -169,7 +158,7 @@ function TagMap(conf) {
                var coords;
                if ( geometry.type=="Point"){
                    coords = geometry.coordinates;
-                   eye =  L.marker([coords[1], coords[0]], {icon: getIcon(layer.layerData.tags)} );
+                   eye = createMarker ( coords, layer.layerData.tags);
                    markerGroup.addLayer(eye);
                } else {
                    var lat = 0.0,lng = 0.0,cnt = 0;
@@ -188,6 +177,18 @@ function TagMap(conf) {
             }
          });
     };
+
+    function createMarker (coords, style) {
+         var iconUrl, eye;
+         if (style == undefined || style.iconUrl == undefined || style.iconUrl == "") {
+            eye =  L.marker([coords[1], coords[0]] );
+         } else {
+            var iconUrl = style.iconUrl;
+            var icon = new TagIcon({iconUrl:iconUrl });
+            eye =  L.marker([coords[1], coords[0]], {icon: getIcon(layer.layerData.tags)} );
+         }
+         return eye;
+    }
 
     exports.edit = function(tags, reload) {
         if (!reload) {
