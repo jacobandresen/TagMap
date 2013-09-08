@@ -80,7 +80,7 @@ function TagMap(conf) {
              },
             success: cb
        });
-    }
+   }
 
     exports.createTagSelector = function(){
         load([""], createSelectorWithTags);
@@ -106,35 +106,56 @@ function TagMap(conf) {
         $("#" + conf.tagSelectorDiv).append(s);
     }
 
+    function showSingle (id) {
+        exports.clear();
+        $.ajax( conf.api, {
+            method: 'POST',
+            dataType: 'jsonp',
+            data: {
+                type: "mapdata",
+                id: id
+             },
+            success: function (data) {
+                render( data, function (layer) {
+                    processLayer(layer);
+                    fitTagGroupInBounds();
+                }, id);
+            }
+       });
+    }
+
     exports.show = function(tags, selectedId, selecttype) {
         exports.clear();
         load(tags, function(data) {
             render( data, function (layer) {
-                layer.on("click", function(e) {
-                    highLight(layer.layerData.id);
-                    $("#" + conf.infoDiv).html(layer.layerData["content_"+conf.language]);
-                    enableTagLinks(tags);
-                });
-                if(conf.enableMouseover){
-                    layer.on("mouseover", function(e) {
-                        if (conf.language == "da") {
-                            $("#" + conf.infoDiv).html(layer.layerData.name);
-                        } else {
-                            $("#" + conf.infoDiv).html(layer.layerData.header_en);
-                        }
-                    });
-                }
-            }, selectedId);
+                 processLayer(layer);
+              }, selectedId);
         },selecttype);
     };
 
-    function enableTagLinks (tags) {
+    function processLayer( layer ) {
+       layer.on("click", function(e) {
+          highLight(layer.layerData.id);
+          $("#" + conf.infoDiv).html(layer.layerData["content_"+conf.language]);
+          enableTagLinks();
+       });
+       if(conf.enableMouseover){
+           layer.on("mouseover", function(e) {
+              if (conf.language == "da") {
+                 $("#" + conf.infoDiv).html(layer.layerData.name);
+              } else {
+                 $("#" + conf.infoDiv).html(layer.layerData.header_en);
+              }
+          });
+       }
+    }
+
+    function enableTagLinks () {
         var tagLinks = $("#" + conf.infoDiv).find('a');
         $.each(tagLinks , function (idx, lnk) {
             $(lnk).on("click", function () {
-                 var linkTags = lnk.getAttribute('data-tags')||tags;
                  var id = lnk.getAttribute('data-id');
-                 exports.show( linkTags, id ) ;
+                 showSingle(id);
             });
         });
     };
@@ -146,11 +167,11 @@ function TagMap(conf) {
                activeLayer = layer;
                var geometry = $.parseJSON(layer.layerData.geometry);
                var coords;
-               if ( geometry.type=="Point"){ 
+               if ( geometry.type=="Point"){
                    coords = geometry.coordinates;
                    eye =  L.marker([coords[1], coords[0]], {icon: getIcon(layer.layerData.tags)} );
                    markerGroup.addLayer(eye);
-               } /*else {
+               } else {
                    var lat = 0.0,lng = 0.0,cnt = 0;
                     $.each( geometry.coordinates[0], function (idx, coords) {
                         lat = lat + coords[0];
@@ -162,9 +183,10 @@ function TagMap(conf) {
                    coords = [ lat, lng];
                    eye =  L.marker([coords[1], coords[0]]);
                    markerGroup.addLayer(eye);
-               } */
-            } 
-         }); 
+               }
+               map.panTo(new L.LatLng(coords[1], coords[0]));
+            }
+         });
     };
 
     exports.edit = function(tags, reload) {
@@ -183,7 +205,7 @@ function TagMap(conf) {
    };
 
    exports.clear = function() {
-        if (eye) map.removeLayer(eye);
+        markerGroup.clearLayers();
         map.eachLayer(function(layer) {
             if (layer.layerData) {
                 map.removeLayer(layer);
@@ -193,7 +215,7 @@ function TagMap(conf) {
         $('#id').attr("disabled", true);
         $("#name").val("");
         $('#name').attr("disabled", true);
-        $('#header_en').attr("disabled", true);   
+        $('#header_en').attr("disabled", true);
         $('#header_en').val("");
         $('#content_da').val("");
         $('#content_da').attr("disabled", true);
@@ -286,6 +308,7 @@ function TagMap(conf) {
        //TODO: create default bound around DK
         var latMin = 1000, latMax=-1000, lngMin = 1000, lngMax = -1000;
         tagGroup.eachLayer( function (layer) {
+            console.log("[%o,%o], [%o,%o]", lngMin, latMin, lngMax, latMax);
             var geometry = $.parseJSON(layer.layerData.geometry);
             function grow( coords ) {
                if (latMin > coords[0]) latMin = coords[0];
