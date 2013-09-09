@@ -96,25 +96,35 @@ function TagMap(conf) {
     }
 
     function showSingle (id) {
-        exports.clear();
-        $.ajax( conf.api, {
-            method: 'POST',
-            dataType: 'jsonp',
-            data: {
-                type: "mapdata",
-                id: id
-             },
-            success: function (data) {
-                render( data, function (layer) {
-                    processLayer(layer);
-                    fitTagGroupInBounds();
-                }, id);
-            }
-       });
+        var l = findLayer(id);
+        if (l) {
+            highLight(id);
+            $("#" + conf.infoDiv).html(layer.layerData["content_"+conf.language]);
+        } else {
+            $.ajax( conf.api, {
+                method: 'POST',
+                dataType: 'jsonp',
+                data: {
+                    type: "mapdata",
+                    id: id
+                },
+                success: function (data) {
+                    renderLayers( data, function (layer) {
+                        tagGroup.addLayer(layer);
+                        processLayer(layer);
+                        markerGroup.clearLayers();
+                        placeMarkerOnLayer(layer);
+                        fitTagGroupInBounds();
+                        $("#" + conf.infoDiv).html(layer.layerData["content_"+conf.language]);
+                   });
+               }
+          });
+       }
     }
 
     exports.show = function(tags, selectedId, selecttype) {
         exports.clear();
+        $("#" + conf.infoDiv).html("");
         load(tags, function(data) {
             render( data, function (layer) {
                  processLayer(layer);
@@ -149,45 +159,64 @@ function TagMap(conf) {
         });
     };
 
+    function findLayer (id ) {
+        var l;
+        tagGroup.eachLayer (function (layer) {
+            if (layer.layerData.id == id) {
+                l = layer;
+            }
+        });
+        return l;
+    }
+
     function highLight (tagId) {
         markerGroup.clearLayers();
-        tagGroup.eachLayer( function (layer) {
-            if (layer.layerData.id == tagId) {
-               activeLayer = layer;
-               var geometry = $.parseJSON(layer.layerData.geometry);
-               var coords;
-               if ( geometry.type=="Point"){
-                   coords = geometry.coordinates;
-                   eye = createMarker ( coords, layer.layerData.tags);
-                   markerGroup.addLayer(eye);
-               } else {
-                   var lat = 0.0,lng = 0.0,cnt = 0;
-                    $.each( geometry.coordinates[0], function (idx, coords) {
-                        lat = lat + coords[0];
-                        lng = lng  + coords[1];
-                        cnt++;
-                    })
-                   lat = lat / cnt;
-                   lng = lng / cnt;
-                   coords = [ lat, lng];
-                   eye =  L.marker([coords[1], coords[0]]);
-                   markerGroup.addLayer(eye);
-               }
-               map.panTo(new L.LatLng(coords[1], coords[0]));
-            }
-         });
+        var l = findLayer(tagId);
+        if (l) placeMarkerOnLayer(l);
     };
 
-    function createMarker (coords, style) {
-         var iconUrl, eye;
+    function placeMarkerOnLayer (layer) {
+       activeLayer = layer;
+       var geometry = $.parseJSON(layer.layerData.geometry);
+
+       if (geometry.type=="Point"){
+          placePointMarker (layer);
+       } else {
+          placePolygonMarker (layer);
+       }
+    }
+
+    function placePointMarker (layer) {
+         var iconUrl, eye, geometry = $.parseJSON(layer.layerData.geometry),
+             coords = geometry.coordinates,
+             style = getTagStyle(layer.layerData.tags);
+
          if (style == undefined || style.iconUrl == undefined || style.iconUrl == "") {
             eye =  L.marker([coords[1], coords[0]] );
          } else {
             var iconUrl = style.iconUrl;
             var icon = new TagIcon({iconUrl:iconUrl });
-            eye =  L.marker([coords[1], coords[0]], {icon: getIcon(layer.layerData.tags)} );
+            eye =  L.marker([coords[1], coords[0]], {icon: icon} );
          }
-         return eye;
+         markerGroup.addLayer(eye);
+         map.panTo(new L.LatLng(coords[1], coords[0]));
+     }
+
+    function placePolygonMarker(layer) {
+        var coords = [], lat = 0.0,lng = 0.0,cnt = 0,
+             geometry = $.parseJSON(layer.layerData.geometry);
+
+        $.each( geometry.coordinates[0], function (idx, coords) {
+             lat = lat + coords[0];
+             lng = lng  + coords[1];
+             cnt++;
+        })
+        lat = lat / cnt;
+        lng = lng / cnt;
+        coords = [ lat, lng];
+        eye =  L.marker([coords[1], coords[0]]);
+        markerGroup.addLayer(eye);
+        map.panTo(new L.LatLng(coords[1], coords[0]));
     }
 
     exports.edit = function(tags, reload) {
@@ -293,17 +322,20 @@ function TagMap(conf) {
     }
 
     function render (layerData, registerEventsCallback, selectedId) {
-        exports.clear();
+       exports.clear();
+       renderLayers(layerData, registerEventsCallback);
+       fitTagGroupInBounds();
+       if (selectedId) {
+           highLight(selectedId);
+       }
+    }
+
+    function renderLayers ( layerData, registerEventsCallback) {
         for (i = 0; i < layerData.length - 1; i++) {
             var layer = geoJsonLayerFromTagData(layerData[i]);
             registerEventsCallback(layer);
             tagGroup.addLayer(layer);
          }
-
-       fitTagGroupInBounds();
-       if (selectedId) {
-           highLight(selectedId);
-       }
     }
 
     function fitTagGroupInBounds () {
@@ -345,7 +377,6 @@ function TagMap(conf) {
        map.panTo(center);
        map.setZoom(zoom);
     }
-
 
     function create(layer, cb) {
         $('#id').val("");
