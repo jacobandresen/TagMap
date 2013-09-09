@@ -99,7 +99,7 @@ function TagMap(conf) {
         var l = findLayer(id);
         if (l) {
             highLight(id);
-            $("#" + conf.infoDiv).html(layer.layerData["content_"+conf.language]);
+            $("#" + conf.infoDiv).html(l.layerData["content_"+conf.language]);
         } else {
             $.ajax( conf.api, {
                 method: 'POST',
@@ -155,6 +155,7 @@ function TagMap(conf) {
             $(lnk).on("click", function () {
                  var id = lnk.getAttribute('data-id');
                  showSingle(id);
+                 return false;
             });
         });
     };
