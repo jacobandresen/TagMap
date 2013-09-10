@@ -100,6 +100,7 @@ function TagMap(conf) {
         if (l) {
             highLight(id);
             $("#" + conf.infoDiv).html(l.layerData["content_"+conf.language]);
+            enableTagLinks();
         } else {
             $.ajax( conf.api, {
                 method: 'POST',
@@ -116,6 +117,7 @@ function TagMap(conf) {
                         placeMarkerOnLayer(layer);
                         fitTagGroupInBounds();
                         $("#" + conf.infoDiv).html(layer.layerData["content_"+conf.language]);
+                        enableTagLinks();
                    });
                }
           });
@@ -137,6 +139,7 @@ function TagMap(conf) {
           highLight(layer.layerData.id);
           $("#" + conf.infoDiv).html(layer.layerData["content_"+conf.language]);
           enableTagLinks();
+          return false;
        });
        if(conf.enableMouseover){
            layer.on("mouseover", function(e) {
