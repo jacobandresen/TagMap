@@ -139,6 +139,9 @@ function TagMap(conf) {
           highLight(layer.layerData.id);
           $("#" + conf.infoDiv).html(layer.layerData["content_"+conf.language]);
           enableTagLinks();
+          //Firing change event in case someone should be interested in knowing
+          //that the content has changed
+          $("#" + conf.infoDiv).change();
           return false;
        });
        if(conf.enableMouseover){
