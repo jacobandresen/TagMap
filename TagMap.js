@@ -153,7 +153,7 @@ function TagMap(conf) {
     }
 
     function enableTagLinks () {
-        var tagLinks = $("#" + conf.infoDiv).find('a');
+        var tagLinks = $("#" + conf.infoDiv).find('a.tagLink');
         $.each(tagLinks , function (idx, lnk) {
             $(lnk).on("click", function () {
                  var id = lnk.getAttribute('data-id');
