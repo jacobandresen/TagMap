@@ -55,6 +55,8 @@ function TagMap(conf) {
                 return conf.tagConfig[t].style;
             }
         }
+        //Returning default style if no match is found
+        return conf.tagConfig[0].style;
     }
 
     function load(tags, cb, selectType) {
