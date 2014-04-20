@@ -1,14 +1,3 @@
-var TagIcon = L.Icon.extend({
-    options: {
-        shadowUrl: 'images/leaf-shadow.png',
-        iconSize: [38,95],
-        shadowSize: [50,64],
-        iconAnchor: [22, 94],
-        shadowAnchor: [4,62],
-        popupAnchor: [-3, -76]
-    }
-});
-
 function TagMap(conf) {
     var layers = [],
         exports = {},
@@ -198,18 +187,10 @@ function placeMarkerOnLayer (layer) {
 function placePointMarker (layer) {
     var icon,
         iconUrl,
-        eye,
+        eye =  L.marker([coords[1], coords[0]] ),
         geometry = $.parseJSON(layer.layerData.geometry),
         coords = geometry.coordinates,
 	style = getTagStyle(layer.layerData.tags);
-
-    if (style == undefined || style.iconUrl == undefined || style.iconUrl == "") {
-        eye =  L.marker([coords[1], coords[0]] );
-    } else {
-        iconUrl = style.iconUrl;
-        icon = new TagIcon({iconUrl:iconUrl });
-	eye =  L.marker([coords[1], coords[0]], {icon: icon} );
-    }
 
     markerGroup.addLayer(eye);
     map.panTo(new L.LatLng(coords[1], coords[0]));
