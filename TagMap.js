@@ -204,7 +204,7 @@ TagMap.prototype.placeMarkerOnLayer = function (layer) {
     var me = this,
         geometry = $.parseJSON(layer.layerData.geometry);
 
-    activeLayer = layer;
+    me.activeLayer = layer;
     if (geometry.type=="Point"){
         me.placePointMarker (layer);
     } else {
@@ -318,7 +318,7 @@ TagMap.prototype.enableEditing = function () {
             layer.layerData = data[0];
 	    activeLayer = layer;
 	    layer.on("click", function(e) {
-	        editData(layer.layerData);
+	        me.editData(layer.layerData);
 	    });
 	    me.editData(layer.layerData);
         });
@@ -408,7 +408,7 @@ TagMap.prototype.fitTagGroupInBounds = function () {
     me.fitBounds(myBounds);
 }
 
-TagMap.prototype.fitBounds = function (bounds, paddingTopLeft, paddingBottomRight) { // (LatLngBounds || ILayer[, Point, Point])
+TagMap.prototype.fitBounds = function (bounds, paddingTopLeft, paddingBottomRight) {
 
     var me = this;
     bounds = bounds.getBounds ? bounds.getBounds() : L.latLngBounds(bounds);
@@ -477,14 +477,16 @@ TagMap.prototype.updateInfo = function () {
 	}).fail(function (data){
 	    alert('gemning fejlede!');
     });
+}
 
-    me.remove = function() {
-        if ($('#id').val() === "") {
-	    alert("id skal være udfyldt før at du får lov til at slette!");
-	    return;
-	}
-	$.ajax(conf.api, {
-            method: 'POST',
+TagMap.prototype.remove = function() {
+    var me = this;
+    if ($('#id').val() === "") {
+        alert("id skal være udfyldt før at du får lov til at slette!");
+        return;
+    }
+    $.ajax(me.conf.api, {
+        method: 'POST',
             data: {
                 id         : $("#id").val(),
                 type       : "deletemapdata",
@@ -492,7 +494,7 @@ TagMap.prototype.updateInfo = function () {
                 header_en  : $('#header_en').val(),
                 content_da : $('#content_da').val(),
                 content_en : $('#content_en').val(),
-                geometry   : JSON.stringify(activeLayer.toGeoJSON()),
+                geometry   : JSON.stringify(me.activeLayer.toGeoJSON()),
                 tags       : $('#tags').val()
            }
         }).done(function(data) {
@@ -501,5 +503,4 @@ TagMap.prototype.updateInfo = function () {
 	}).fail(function(data, b) {
 	    alert("sletning fejlede!");
 	});
-   };
 }
