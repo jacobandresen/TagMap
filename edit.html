@@ -3,7 +3,6 @@
 <head>
     <title>Tagmap edit</title> 
         <meta charset="UTF-8"/>
-
 	<link rel="stylesheet" href="libs/leaflet.css" />
 	<!--[if lte IE 8]><link rel="stylesheet" href="libs/leaflet.ie.css" /><![endif]-->
 	<link rel="stylesheet" href="leaflet.draw.css" />
@@ -32,7 +31,6 @@
                       </tr>
                       <tr><td>id:</td><td><input type="text" id="id"/></td></tr>
                       <tr><td>navn (da):</td><td><input type="text" id="name"/></td></tr>
-
                       <tr><td>navn (en):</td><td><input type="text" id="header_en"/></td></tr>
                       <tr><td>tags:</td><td><input type="text" id="tags"/> (krævet)</td></tr>
                       <tr><td>indhold (da):</td><td> <textarea id="content_da" style="width: 400px; height: 100px; border: 1px solid #ccc"> </textarea></td></tr>
@@ -46,70 +44,59 @@
 <script type="text/javascript">
 
 $(document).ready( function() {
-	     var tagmap = new TagMap({
-		 api: "/1/index.php", 
-		 content: "content_da",
-		 mapDiv: 'map',
-		 infoDiv: 'info',
-                 tagSelectorDiv: 'divs',
-		 baseMaps: {
-		     "Historisk atlas": new L.TileLayer('http://tile.historiskatlas.dk/54/{z}/{x}/{y}.jpg'),
-		     "OSM": new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
-		     "cloudmade": new L.TileLayer('http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/997/256/{z}/{x}/{y}.png')
-		 },
-		 tagConfig : [
-		 {
-		    name: "mwp",
-		    style: {
-			radius: 8,
-			fillColor: "#ffcc47",
-			color: "#ff0000",
-			weight: 5,
-			opacity: 1,
-			fillOpacity: 0.8
-		    }
-		},
-		{
-		    name: "test102",
-		    style: {
-			radius: 8,
-			fillColor: "#cccc47",
-			color: "#ffff00",
-			weight: 5,
-			opacity: 0.5,
-			fillOpacity: 0.3
-		    }
-		 }
-	       ],
-	       lat: 55.63405,
-	       lng: 12.59938,
-	       zoom: 14
-	    });
+    var tagmap = new TagMap({
+        api           :      "/1/index.php", 
+        content       :      "content_da",
+        mapDiv        :      'map',
+        infoDiv       :      'info',
+        tagSelectorDiv: 'divs',
+        baseMaps      : {
+	     "OSM": new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
+        },
+        tagConfig : [{
+	    name: "test102",
+	    style: {
+		radius: 8,
+		fillColor: "#cccc47",
+		color: "#ffff00",
+		weight: 5,
+		opacity: 0.5,
+		fillOpacity: 0.3
+	    }
+       }],
+       lat: 55.63405,
+       lng: 12.59938,
+       zoom: 14
+    });
             
-             tagmap.createTagSelector();
+    tagmap.createTagSelector();
 	     
-             $('#tags').val("default");
-	     tagmap.edit("default");
-	     $('#edit').on('click', function () {
-		$('#id').val("");
-                $('#header_en').val("");
-		$('#content_da').val("");
-		$('#content_en').val("");
-		$('#name').val("");
-		$('#tags').val($('#tagsQuery').val());
-		tagmap.edit($('#tagsQuery').val());
-	    });
+    $('#tags').val("default");
+    tagmap.edit("default");
+    $('#edit').on('click', function () {
+        $('#id').val("");
+        $('#header_en').val("");
+        $('#content_da').val("");
+	$('#content_en').val("");
+	$('#name').val("");
+	$('#tags').val($('#tagsQuery').val());
+	tagmap.edit($('#tagsQuery').val());
+    });
 
-            $('#id').attr("disabled", true);
-            $('#name').attr("disabled", true);
-            $('#header_en').attr("disabled", true);
-            $('#content_da').attr("disabled", true);
-            $('#content_en').attr("disabled", true);
-            $('#remove').attr("disabled", true);
-            $('#save').attr("disabled", true); 
-	    $('#remove').on('click', function () { tagmap.remove(); });
-	    $('#clear').on('click', function () { tagmap.clear(); });
-	});
+    $('#saveButton').on('click', function () {
+      tagmap.updateInfo();  
+    });
+
+    $('#id').attr("disabled", true);
+    $('#name').attr("disabled", true);
+    $('#header_en').attr("disabled", true);
+    $('#content_da').attr("disabled", true);
+    $('#content_en').attr("disabled", true);
+    $('#remove').attr("disabled", true);
+    $('#save').attr("disabled", true); 
+    $('#remove').on('click', function () { tagmap.remove(); });
+    $('#clear').on('click', function () { tagmap.clear(); });
+   });
    </script>
 
 </body>

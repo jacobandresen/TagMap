@@ -36,20 +36,15 @@
     <script type="text/javascript">
     
     var tagmap = new TagMap({
-        api: "/1/index.php",
-        language: "da",
-        mapDiv: 'map',
-        infoDiv: 'info',
-        tagSelectorDiv: 'divs',
-        showLayerControls: true,
-        enableMouseover: false,
+        api               : "/1/index.php",
+        language          : "da",
+        mapDiv            : 'map',
+        infoDiv           : 'info',
+        tagSelectorDiv    : 'divs',
+        showLayerControls : true,
+        enableMouseover   : false,
         baseMaps: {
-           /* "Historisk atlas": new L.TileLayer('http://tile.historiskatlas.dk/54/{z}/{x}/{y}.jpg'),
-            "OSM": new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),*/
-            "København 2013": new L.TileLayer('http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/997/256/{z}/{x}/{y}.png',{zIndex: 0})
-        },
-        overlayMaps: {
-            "København 1940": new L.TileLayer('http://www.politietsregisterblade.dk/kortdata/1/{z}/{x}/{y}.png',{ tms:true, zIndex:1 })
+            "OSM": new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
         },
         tagConfig : [
         {
@@ -60,45 +55,9 @@
                 color: "#ff0000",
                 weight: 5,
                 opacity: 1,
-                fillOpacity: 0.8//,
-               // iconUrl: "images/leaf-green.png"
-                }
-        },
-        {
-            name: "jøde",
-            style: {
-                radius: 8,
-                fillColor: "green",
-                color: "green",
-                weight: 5,
-                opacity: 1,
-                fillOpacity: 0.8//,
-                //iconUrl: "images/leaf-red.png"
-                }
-        },
-        {
-            name: "hjælper",
-            style: {
-                radius: 8,
-                fillColor: "blue",
-                color: "blue",
-                weight: 5,
-                opacity: 1,
-                fillOpacity: 0.8//,
-              //  iconUrl: "images/leaf-orange.png"
-                }
-        },        
-        {
-            name: "socialtjeneste",
-            style: {
-                radius: 8,
-                fillColor: "yellow",
-                color: "yellow",
-                weight: 5,
-                opacity: 1,
                 fillOpacity: 0.8
-                }
-        },           
+            }
+        }
       ],
        lat: 55.67899,
        lng: 12.57522,
@@ -107,10 +66,9 @@
     
     tagmap.createTagSelector();
     
-    $('#display').on('click', function () {
-        tagmap.show( $('#tagsQuery').val() );
-    });
+    $('#display').on('click', function () { tagmap.show( $('#tagsQuery').val() ); });
     $('#clear').on('click', function () { tagmap.clear(); });
+
     </script>
 </body>
 </html>
