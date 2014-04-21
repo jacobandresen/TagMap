@@ -107,11 +107,11 @@ TagMap.prototype.createSelectorWithTags = function (data) {
 
 TagMap.prototype.showSingle = function (id) {
     var me = this,
-        l = findLayer(id);
+        l = me.findLayer(id);
     if (l) {
-        highLight(id);
+        me.highLight(id);
         $("#" + me.conf.infoDiv).html(l.layerData["content_" + me.conf.language]);
-        enableTagLinks();
+        me.enableTagLinks();
     } else {
         $.ajax( me.conf.api, {
             method    : 'POST',
