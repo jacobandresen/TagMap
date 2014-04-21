@@ -3,9 +3,9 @@
    "version": "0.0.1",
    "description": "Edit and display info in layers grouped by tags",
    "dependencies": {
-       "jquery"      : "1.9.0",
-       "Leaflet"     : "https://github.com/Leaflet/Leaflet.git",
-       "Leaflet-draw": "https://github.com/Leaflet/Leaflet.draw.git" 
+       "jquery"            : "1.9.0",
+       "Leaflet"           : "http://leaflet-cdn.s3.amazonaws.com/build/leaflet-0.7.2.zip",
+       "Leaflet-draw"      : "https://github.com/Leaflet/Leaflet.draw.git" 
    },
    "repository": {
       "type": "git",
