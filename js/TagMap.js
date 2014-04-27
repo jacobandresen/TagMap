@@ -1,9 +1,7 @@
 /* jshint nomen: false */
 /* global define */
 
-
-define("tagmap", ["jquery", "leaflet", "leafletdraw"],
-  function ($, L) { 
+define("tagmap", ["jquery", "leaflet", "leafletdraw"], function ($, L) { 
 
     function TagMap (conf) {
         var me = this,
@@ -212,7 +210,7 @@ define("tagmap", ["jquery", "leaflet", "leafletdraw"],
            geometry = $.parseJSON(layer.layerData.geometry);
 
         me.activeLayer = layer;
-        if (geometry.type=="Point"){
+        if (geometry.type=="Feature"){
            me.placePointMarker (layer);
         } else {
            me.placePolygonMarker (layer);
@@ -220,10 +218,10 @@ define("tagmap", ["jquery", "leaflet", "leafletdraw"],
     };
 
     TagMap.prototype.placePointMarker = function (layer) {
-        var me = this,
+       var me = this,
             icon,
             iconUrl,
-            geometry = $.parseJSON(layer.layerData.geometry),
+            geometry = $.parseJSON(layer.layerData.geometry).geometry,
             coords = geometry.coordinates,
             eye =  L.marker([coords[1], coords[0]] ),
             style = me.getTagStyle(layer.layerData.tags);
@@ -239,19 +237,20 @@ define("tagmap", ["jquery", "leaflet", "leafletdraw"],
             lng = 0.0,
             cnt = 0,
             geometry = $.parseJSON(layer.layerData.geometry);
+        if (geometry) {
+            $.each( geometry.geometry.coordinates, function (idx, coords) {
+                lat = lat + coords[0];
+                lng = lng  + coords[1];
+	        cnt++;
+            });
 
-        $.each( geometry.coordinates[0], function (idx, coords) {
-            lat = lat + coords[0];
-            lng = lng  + coords[1];
-	    cnt++;
-        });
-
-        lat = lat / cnt;
-        lng = lng / cnt;
-        coords = [ lat, lng];
-        eye =  L.marker([coords[1], coords[0]]);
-        me.markerGroup.addLayer(eye);
-        me.map.panTo(new L.LatLng(coords[1], coords[0]));
+            lat = lat / cnt;
+            lng = lng / cnt;
+            coords = [lat, lng];
+            eye =  L.marker([coords[1], coords[0]]);
+            me.markerGroup.addLayer(eye);
+            me.map.panTo(new L.LatLng(coords[1], coords[0]));
+        }
     };
 
     TagMap.prototype.edit = function (tags, reload) {
@@ -324,7 +323,7 @@ define("tagmap", ["jquery", "leaflet", "leafletdraw"],
             me.tagGroup.addLayer(layer);
             me.create(layer, function cb(data) {
                 layer.layerData = data[0];
-	        activeLayer = layer;
+	        me.activeLayer = layer;
 	        layer.on("click", function(e) {
 	            me.editData(layer.layerData);
 	        });
@@ -399,15 +398,16 @@ define("tagmap", ["jquery", "leaflet", "leafletdraw"],
 	        if (lngMin > coords[1]) lngMin = coords[1];
 	        if (lngMax < coords[1]) lngMax = coords[1];
 	    }
-	    if (layer.type == "Point") {
-	        grow( geometry.coordinates );
+	    if (geometry.geometry.type == "Point") {
+	        grow( geometry.geometry.coordinates );
 	    } else {
+
 	       try {
-	           $.each(geometry.coordinates[0], function (idx, coords) {
+	           $.each(geometry.geometry.coordinates[0], function (idx, coords) {
 		       grow(coords);
 		   });
-	       }catch (Exception){
-	           console.log("failed on:%o", geometry);
+	       }catch (e){
+	           console.log("failed on:%o,%o,%o", geometry,e,geometry);
   	       }
 	    }
         });
