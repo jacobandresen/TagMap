@@ -1,14 +1,16 @@
 {
-   "name": "TagMap",
-   "version": "0.0.1",
-   "description": "Edit and display info in layers grouped by tags",
-   "dependencies": {
-       "jquery"            : "1.9.0",
-       "Leaflet"           : "http://leaflet-cdn.s3.amazonaws.com/build/leaflet-0.7.2.zip",
-       "Leaflet-draw"      : "https://github.com/Leaflet/Leaflet.draw.git" 
-   },
-   "repository": {
-      "type": "git",
-      "url" : "https://github.com/jacobandresen/TagMap.git"
-   }
+  "name": "TagMap",
+  "version": "0.0.1",
+  "description": "Edit and display info in layers grouped by tags",
+  "dependencies": {
+    "requirejs": null,
+    "jquery": "1.9.0",
+    "Leaflet": "http://leaflet-cdn.s3.amazonaws.com/build/leaflet-0.7.2.zip",
+    "Leaflet-draw": "https://github.com/Leaflet/Leaflet.draw.git",
+    "bootstrap": "~3.1.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jacobandresen/TagMap.git"
+  }
 }
