@@ -1,7 +1,9 @@
 /* jshint nomen: false */
 /* global define */
 
-define(["jquery", "leaflet", "leafletdraw"],  function ($, L) { 
+
+define("tagmap", ["jquery", "leaflet", "leafletdraw"],
+  function ($, L) { 
 
     function TagMap (conf) {
         var me = this,
@@ -306,7 +308,6 @@ define(["jquery", "leaflet", "leafletdraw"],  function ($, L) {
     TagMap.prototype.enableEditing = function () {
         var me = this;
 
-console.log("L:%o", L);
         if (!me.map.editStarted) {
 	    var drawControl = new L.Control.Draw({
                 draw: {
@@ -516,4 +517,3 @@ console.log("L:%o", L);
 
     return TagMap;
 })
-

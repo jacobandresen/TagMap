@@ -7,13 +7,13 @@ require.config({
     },
 
     use: {
-        leaflet: {
-            attach: 'L'
-        }
-    }
+       leaflet: {
+           attach: 'L'
+       } 
+    } 
 });
 
-require(['jquery', 'tagmap', 'leaflet', 'leafletdraw'], function ($, TagMap, L) {
+require(['jquery', 'tagmap', 'leaflet'], function ($, TagMap, L) {
 
     var tagmap = new TagMap({
         api               : "/1/index.php",
