@@ -379,9 +379,9 @@ TagMap.prototype.renderLayers = function ( layerData, registerEventsCallback) {
     if (layerData)
     for (i = 0; i < layerData.length - 1; i++) {
         var layer = me.geoJsonLayerFromTagData(layerData[i]);
-    registerEventsCallback(layer);
-    me.tagGroup.addLayer(layer);
-       }
+        registerEventsCallback(layer);
+        me.tagGroup.addLayer(layer);
+    }
 };
 
 TagMap.prototype.fitTagGroupInBounds = function () {
@@ -453,7 +453,7 @@ TagMap.prototype.create = function (layer, cb) {
                 tags          : $('#tags').val()
             }
         }).done(function(data) {
-           cb(data);
+            cb(data);
         });
     }
 };
