@@ -35,7 +35,7 @@
         </tr>
     </table>
     <script src="js/jquery.min.js"></script>
-    <script src="js/leaflet.min.js"></script>
+    <script src="js/leaflet.js"></script>
     <script src="js/leaflet.draw.js"></script>
     <script src="js/TagMap.js"></script>
     <script src="js/edit.js"></script>
