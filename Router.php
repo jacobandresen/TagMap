@@ -1,4 +1,5 @@
 <?php
+//support hashbang indexing
 class Router
 {
    public function Router ($endpoint)
