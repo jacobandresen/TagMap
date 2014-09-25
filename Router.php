@@ -1,7 +1,7 @@
 <?php
-class Fragment
+class Router
 {
-   public function Fragment ($endpoint)
+   public function Router ($endpoint)
    {
        $this->endpoint = $endpoint;
        $this->fragment = $_REQUEST['_escaped_fragment'];
@@ -13,7 +13,7 @@ class Fragment
        return (isset($params['_escaped_fragment_']));
    }
 
-   public function map ()
+   public function getText ()
    {
        return fgets($this->endpoint."?".$this->fragment);
    }

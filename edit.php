@@ -1,12 +1,10 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Tagmap edit</title> 
+    <title>Tagmap edit</title>
     <meta charset="UTF-8"/>
-    <link rel="stylesheet" href="js/libs/Leaflet/leaflet.css" />
-    <link rel="stylesheet" href="js/libs/Leaflet-draw/dist/leaflet.draw.css" />
-
-    <script data-main="js/edit" src="js/libs/requirejs/require.js"></script>
+    <link rel="stylesheet" href="js/leaflet.css" />
+    <link rel="stylesheet" href="js/leaflet.draw.css" />
 </head>
 <body>
     <table>
@@ -18,9 +16,9 @@
                 <table>
                      <tr>
                          <td> filter:</td>
-                          <td> 
+                         <td>
                               <div id="divs">
-                                   <button id="edit">søg</button> 
+                                   <button id="edit">søg</button>
                                    <button id="clear">Rens kort</button>
                                </div>
                           </td>
@@ -36,6 +34,10 @@
             </td>
         </tr>
     </table>
-
+    <script src="js/jquery.min.js"></script>
+    <script src="js/leaflet.min.js"></script>
+    <script src="js/leaflet.draw.js"></script>
+    <script src="js/TagMap.js"></script>
+    <script src="js/edit.js"></script>
 </body>
 </html>
