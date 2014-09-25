@@ -168,7 +168,7 @@ TagMap.prototype.processLayer = function ( layer ) {
     }
 };
 
-TagMap.prototype.getMapLink () {
+TagMap.prototype.getMapLink = function () {
     var me = this,
         id = window.location.hash.replace("#!/id", "");
     return id;
@@ -375,7 +375,7 @@ TagMap.prototype.render = function (layerData, registerEventsCallback, selectedI
 };
 
 TagMap.prototype.renderLayers = function ( layerData, registerEventsCallback) {
-    var me = this;
+    var i, me = this;
     if (layerData)
     for (i = 0; i < layerData.length - 1; i++) {
         var layer = me.geoJsonLayerFromTagData(layerData[i]);
