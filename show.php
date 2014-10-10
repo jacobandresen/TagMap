@@ -42,7 +42,7 @@ if ($f->hasFragment()) {
 ?>
 
 <script src="js/jquery.min.js"></script>
-<script src="js/leaflet.min.js"></script>
+<script src="js/leaflet.js"></script>
 <script src="js/leaflet.draw.js"></script>
 <script src="js/TagMap.js"></script>
 <script src="js/show.js"></script>

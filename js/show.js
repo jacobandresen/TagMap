@@ -31,5 +31,6 @@ tagmap.createTagSelector();
 $('#display').on('click', function () { tagmap.show( $('#tagsQuery').val() ); });
 $('#clear').on('click', function () { tagmap.clear(); });
 
-var id = tagmap.getIdFromHash();
+var id = tagmap.getMapLink();
+console.log("id:[%o]", id);
 if (id && id != "") { tagmap.showSingle(id); }

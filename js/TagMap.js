@@ -126,7 +126,7 @@ TagMap.prototype.showSingle = function (id) {
 	            me.markerGroup.clearLayers();
 	            me.placeMarkerOnLayer(layer);
 	            me.fitTagGroupInBounds();
-	            $("#" + conf.infoDiv).html(layer.layerData["content_" + me.conf.language]);
+	            $("#" + me.conf.infoDiv).html(layer.layerData["content_" + me.conf.language]);
 	                me.enableTagLinks();
 	            });
             }
@@ -223,9 +223,9 @@ TagMap.prototype.placePointMarker = function (layer) {
         icon,
         iconUrl,
         geometry = $.parseJSON(layer.layerData.geometry).geometry,
-        coords = geometry.coordinates,
-        eye =  L.marker([coords[1], coords[0]] ),
-        style = me.getTagStyle(layer.layerData.tags);
+        coords   = geometry.coordinates,
+        eye      =  L.marker([coords[1], coords[0]] ),
+        style    = me.getTagStyle(layer.layerData.tags);
 
     me.markerGroup.addLayer(eye);
     me.map.panTo(new L.LatLng(coords[1], coords[0]));
