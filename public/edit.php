@@ -1,10 +1,12 @@
+<?php
+require_once ("TagMap.php");
+$t =new TagMap("/1/index.php");
+?>
 <!DOCTYPE HTML>
 <html>
 <head>
     <title>Tagmap edit</title>
-    <meta charset="UTF-8"/>
-    <link rel="stylesheet" href="js/leaflet.css" />
-    <link rel="stylesheet" href="js/leaflet.draw.css" />
+<?php  print $t->getHeader(); ?>
 </head>
 <body>
     <table>
@@ -34,10 +36,33 @@
             </td>
         </tr>
     </table>
-    <script src="js/jquery.min.js"></script>
-    <script src="js/leaflet.js"></script>
-    <script src="js/leaflet.draw.js"></script>
-    <script src="js/TagMap.js"></script>
-    <script src="js/edit.js"></script>
+
+<?php
+print $t->getJS();
+?>
+<script type="text/javascript">
+$('#tags').val("default");
+tagmap.edit("default");
+$('#edit').on('click', function () {
+    $('#id').val("");
+    $('#header_en').val("");
+    $('#content_da').val("");
+    $('#content_en').val("");
+    $('#name').val("");
+    $('#tags').val($('#tagsQuery').val());
+    tagmap.edit($('#tagsQuery').val());
+});
+
+$('#saveButton').on('click', function () { tagmap.updateInfo(); });
+$('#id').attr("disabled", true);
+$('#name').attr("disabled", true);
+$('#header_en').attr("disabled", true);
+$('#content_da').attr("disabled", true);
+$('#content_en').attr("disabled", true);
+$('#remove').attr("disabled", true);
+$('#save').attr("disabled", true);
+$('#remove').on('click', function () { tagmap.remove(); });
+$('#clear').on('click', function () { tagmap.clear(); });
+</script>
 </body>
 </html>

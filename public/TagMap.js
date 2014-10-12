@@ -1,4 +1,3 @@
-"use strict";
 function TagMap (conf) {
     var me = this,
         layers = [],
@@ -20,21 +19,29 @@ function TagMap (conf) {
 	    });
     }
 
-    me.map = new L.Map(conf.mapDiv, {
+    me.map = new L.Map('map', {
         center  : new L.LatLng(me.conf.lat, me.conf.lng),
         zoom    : conf.zoom,
         layers  : layers
-   });
+    });
 
-   if (conf.showLayerControls) {
+    if (conf.showLayerControls) {
        L.control.layers(me.conf.baseMaps, me.conf.overlayMaps).addTo(me.map);
-   }
+    }
 
-   L.control.scale({imperial: false}).addTo(me.map);
-   me.tagGroup    = new L.FeatureGroup();
-   me.map.addLayer(me.tagGroup);
-   me.markerGroup = new L.FeatureGroup();
-   me.map.addLayer(me.markerGroup);
+    me.createTagSelector();
+
+    L.control.scale({imperial: false}).addTo(me.map);
+    me.tagGroup    = new L.FeatureGroup();
+    me.map.addLayer(me.tagGroup);
+    me.markerGroup = new L.FeatureGroup();
+    me.map.addLayer(me.markerGroup);
+
+    $('#display').on('click', function () { me.show( $('#tagsQuery').val() ); });
+    $('#clear').on('click', function () { me.clear(); });
+
+    var id = me.getMapLink();
+    if (id && id != "") { me.showSingle(id); }
 }
 
 TagMap.prototype.getTagStyle = function (tagsIn) {
@@ -258,16 +265,16 @@ TagMap.prototype.edit = function (tags, reload) {
     var me = this;
     if (!reload) {
         me.disableSave();
-    me.enableEditing();
+        me.enableEditing();
     }
 
     me.load(tags, function (data) {
         me.render(data, function (layer) {
-        layer.on("click", function (ev) {
-            me.activeLayer = layer;
-        me.editData(layer.layerData);
+            layer.on("click", function (ev) {
+                me.activeLayer = layer;
+                me.editData(layer.layerData);
+             });
         });
-    });
     });
 };
 
@@ -279,8 +286,8 @@ TagMap.prototype.clear = function () {
 
     me.map.eachLayer(function(layer) {
         if (layer.layerData) {
-        me.map.removeLayer(layer);
-    }
+            me.map.removeLayer(layer);
+        }
     });
 
     $("#id").val("");
@@ -309,7 +316,7 @@ TagMap.prototype.enableEditing = function () {
     var me = this;
 
     if (!me.map.editStarted) {
-    var drawControl = new L.Control.Draw({
+        var drawControl = new L.Control.Draw({
             draw: {
                 circle: false
             },
