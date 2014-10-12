@@ -166,10 +166,10 @@ TagMap.prototype.processLayer = function ( layer ) {
 
     if (me.conf.enableMouseover) {
         layer.on("mouseover", function (e) {
-            if (conf.language == "da") {
-	            $("#" + me.conf.infoDiv).html(layer.layerData.name);
+            if (me.conf.language == "da") {
+	            $("#info").html(layer.layerData.name);
             } else {
-                $("#" + me.conf.infoDiv).html(layer.layerData.header_en);
+                $("#info").html(layer.layerData.header_en);
             }
         });
     }
@@ -183,7 +183,7 @@ TagMap.prototype.getMapLink = function () {
 
 TagMap.prototype.enableTagLinks = function () {
     var me = this,
-        tagLinks = $("#" + me.conf.infoDiv).find('a.tagLink');
+        tagLinks = $("#info").find('a.tagLink');
 
     $.each(tagLinks , function (idx, lnk) {
         $(lnk).on("click", function () {
