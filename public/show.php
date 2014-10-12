@@ -6,7 +6,7 @@
     <meta name="fragment" content="!"/>
 <?php
 require_once("TagMap.php");
-$f = new TagMap("/api/1/index.php");
+$f = new TagMap("http://localhost:8080/1/index.php");
 print $f->getHeader();
 ?>
 </head>

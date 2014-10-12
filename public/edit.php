@@ -1,6 +1,6 @@
 <?php
 require_once ("TagMap.php");
-$t =new TagMap("/1/index.php");
+$t =new TagMap("http://localhost:8080/1");
 ?>
 <!DOCTYPE HTML>
 <html>
@@ -36,7 +36,6 @@ $t =new TagMap("/1/index.php");
             </td>
         </tr>
     </table>
-
 <?php
 print $t->getJS();
 ?>
