@@ -6,7 +6,7 @@
 <?php
 require_once("TagMap.php");
 $f = new TagMap("http://localhost:8080/1/index.php");
-print $f->getHeader();
+print $f->getHead();
 ?>
 </head>
 <body>
@@ -31,7 +31,7 @@ print $f->getHeader();
     </table>
 <?php
 if (!$f->hasFragment()){
-    print $f->getJS();
+    print $f->getJavascript();
 }
 ?>
 </body>

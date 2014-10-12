@@ -7,7 +7,7 @@ $t =new TagMap("http://localhost:8080/1");
 <head>
     <meta charset="UTF-8"/>
     <title>Tagmap edit</title>
-<?php  print $t->getHeader(); ?>
+<?php  print $t->getHead(); ?>
 </head>
 <body>
     <table>
@@ -29,7 +29,7 @@ $t =new TagMap("http://localhost:8080/1");
                       <tr><td>id:</td><td><input type="text" id="id"/></td></tr>
                       <tr><td>navn (da):</td><td><input type="text" id="name"/></td></tr>
                       <tr><td>navn (en):</td><td><input type="text" id="header_en"/></td></tr>
-                      <tr><td>tags:</td><td><input type="text" id="tags"/> (krævet)</td></tr>
+                      <tr><td>tags:</td><td><input type="text" id="tags" value="default"/> (krævet)</td></tr>
                       <tr><td>indhold (da):</td><td> <textarea id="content_da" style="width: 400px; height: 100px; border: 1px solid #ccc"> </textarea></td></tr>
                       <tr><td>indhold (en):</td><td> <textarea id="content_en" style="width: 400px; height: 100px; border: 1px solid #ccc"> </textarea></td></tr>
                       <tr><td></td><td><button id="saveButton">Gem</button> <button id="remove">slet</button> </td></tr>
@@ -38,10 +38,13 @@ $t =new TagMap("http://localhost:8080/1");
         </tr>
     </table>
 <?php
-print $t->getJS();
+print $t->getJavascript();
 ?>
+
 <script type="text/javascript">
-$('#tags').val("default");
+
+//TODO: move this to "tagmap.enableEditing"
+//$('#tags').val("default");
 tagmap.edit("default");
 $('#edit').on('click', function () {
     $('#id').val("");
@@ -64,5 +67,6 @@ $('#save').attr("disabled", true);
 $('#remove').on('click', function () { tagmap.remove(); });
 $('#clear').on('click', function () { tagmap.clear(); });
 </script>
+
 </body>
 </html>
