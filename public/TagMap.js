@@ -116,7 +116,7 @@ TagMap.prototype.showSingle = function (id) {
     l = me.findLayer(id);
     if (l) {
         me.highLight(id);
-        $("#" + me.conf.infoDiv).html(l.layerData["content_" + me.conf.language]);
+        $("#info").html(l.layerData["content_" + me.conf.language]);
         me.enableTagLinks();
     } else {
         $.ajax( me.conf.api, {
@@ -133,7 +133,7 @@ TagMap.prototype.showSingle = function (id) {
 	            me.markerGroup.clearLayers();
 	            me.placeMarkerOnLayer(layer);
 	            me.fitTagGroupInBounds();
-	            $("#" + me.conf.infoDiv).html(layer.layerData["content_" + me.conf.language]);
+	            $("#info").html(layer.layerData["content_" + me.conf.language]);
 	                me.enableTagLinks();
 	            });
             }
@@ -144,7 +144,7 @@ TagMap.prototype.showSingle = function (id) {
 TagMap.prototype.show = function(tags, selectedId, selecttype) {
     var me = this;
     me.clear();
-    $("#" + me.conf.infoDiv).html("");
+    $("#info").html("");
     me.load(tags, function (data) {
         me.render( data, function (layer) {
 	        me.processLayer(layer);
@@ -156,11 +156,11 @@ TagMap.prototype.processLayer = function ( layer ) {
     var me = this;
     layer.on("click", function (e) {
         me.highLight(layer.layerData.id);
-	    $("#" + me.conf.infoDiv).html(layer.layerData["content_" + me.conf.language]);
+	    $("#info").html(layer.layerData["content_" + me.conf.language]);
 	    me.enableTagLinks();
 	    //Firing change event in case someone should be interested in knowing
 	    //that the content has changed
-	    $("#" + me.conf.infoDiv).change();
+	    $("#info").change();
 	    return false;
     });
 
