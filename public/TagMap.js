@@ -177,7 +177,7 @@ TagMap.prototype.processLayer = function ( layer ) {
 
 TagMap.prototype.getMapLink = function () {
     var me = this,
-        id = window.location.hash.replace("#!/id", "");
+        id = window.location.hash.replace("#!id=", "");
     return id;
 }
 
