@@ -5,6 +5,7 @@ $t =new TagMap("http://localhost:8080/1");
 <!DOCTYPE HTML>
 <html>
 <head>
+    <meta charset="UTF-8"/>
     <title>Tagmap edit</title>
 <?php  print $t->getHeader(); ?>
 </head>
