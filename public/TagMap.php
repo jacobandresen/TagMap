@@ -8,7 +8,7 @@ class TagMap
        if( (isset($_REQUEST['_escaped_fragment']))) {
            $this->fragment = $_REQUEST['_escaped_fragment'];
        }
-       $this->params   = $this->getParameters();
+      // $this->params   = $this->getParameters();
    }
 
    public function hasFragment ()
@@ -21,7 +21,7 @@ class TagMap
        return file_get_contents($this->endpoint."?".$this->fragment);
    }
 
-   public function getParameters ()
+/*   public function getParameters ()
    {
        $out     = array();
        if ($this->fragment <> "") {
@@ -39,9 +39,10 @@ class TagMap
        } else {
           return $default;
        }
-   }
+   }*/
 
-   public function getHeader() {
+   public function getHead()
+   {
        $h  = <<< CSS
 <meta name="fragment"  content="!">
 <link rel="stylesheet" href="/vendor/leaflet.css" />
@@ -50,7 +51,8 @@ CSS;
        return $h;
    }
 
-   public function getJS() {
+   public function getJavascript()
+   {
        $h  = <<< JS
 <script src="vendor/jquery.min.js"></script>
 <script src="vendor/leaflet.js"></script>
