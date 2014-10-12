@@ -18,7 +18,7 @@ class TagMap
 
    public function getText ( )
    {
-       return fgets($this->endpoint."?".$this->fragment);
+       return file_get_contents($this->endpoint."?".$this->fragment);
    }
 
    public function getParameters ()
